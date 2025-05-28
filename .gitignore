@@ -23,14 +23,17 @@ dist-ssr
 *.sln
 *.sw?
 
-# Загруженные файлы
+# Uploads and logs
 uploads/
-server/uploads/
+deploy-logs/
 
 # Environment variables
 .env
 .env.local
 .env.production
+
+# PM2
+.pm2/
 
 # Backend node_modules
 server/node_modules/
