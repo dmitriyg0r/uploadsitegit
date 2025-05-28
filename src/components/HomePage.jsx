@@ -6,6 +6,7 @@ function HomePage() {
   const [uploads, setUploads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [downloadingFiles, setDownloadingFiles] = useState(new Set());
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -27,6 +28,130 @@ function HomePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadFile = async (fullName, fileName, fileType) => {
+    const fileKey = `${fullName}-${fileName}`;
+    setDownloadingFiles(prev => new Set(prev).add(fileKey));
+    
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/download/${encodeURIComponent(fullName)}/${encodeURIComponent(fileName)}`,
+        { responseType: 'blob' }
+      );
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Ошибка скачивания файла:', error);
+      alert('Ошибка при скачивании файла');
+    } finally {
+      setDownloadingFiles(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(fileKey);
+        return newSet;
+      });
+    }
+  };
+
+  const getFileSize = async (fullName, fileName) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/api/file-info/${encodeURIComponent(fullName)}/${encodeURIComponent(fileName)}`
+      );
+      return response.data.size;
+    } catch (error) {
+      return 'Неизвестно';
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 'Неизвестно') return bytes;
+    if (bytes === 0) return '0 Байт';
+    
+    const k = 1024;
+    const sizes = ['Байт', 'КБ', 'МБ', 'ГБ'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (fileName) => {
+    const extension = fileName.split('.').pop().toLowerCase();
+    switch (extension) {
+      case 'exe':
+        return '⚙️';
+      case 'docx':
+        return '📄';
+      case 'pdf':
+        return '📕';
+      case 'zip':
+        return '🗜️';
+      default:
+        return '📎';
+    }
+  };
+
+  const FileCard = ({ fileName, fileType, fullName, upload }) => {
+    const [fileSize, setFileSize] = useState('Загрузка...');
+    const fileKey = `${fullName}-${fileName}`;
+    const isDownloading = downloadingFiles.has(fileKey);
+
+    useEffect(() => {
+      getFileSize(fullName, fileName).then(size => {
+        setFileSize(formatFileSize(size));
+      });
+    }, [fullName, fileName]);
+
+    return (
+      <div className="file-card">
+        <div className="file-card-header">
+          <div className="file-info">
+            <span className="file-icon">{getFileIcon(fileName)}</span>
+            <div className="file-details">
+              <span className="file-name" title={fileName}>{fileName}</span>
+              <span className="file-size">{fileSize}</span>
+            </div>
+          </div>
+          <div className="file-status">
+            <span className="status-badge status-ready">✅ Готов</span>
+          </div>
+        </div>
+        
+        <div className="file-actions">
+          <button 
+            className="action-btn download-btn"
+            onClick={() => downloadFile(fullName, fileName, fileType)}
+            disabled={isDownloading}
+            title="Скачать файл"
+          >
+            {isDownloading ? (
+              <>
+                <span className="spinner-small"></span>
+                Скачивание...
+              </>
+            ) : (
+              <>
+                📥 Скачать
+              </>
+            )}
+          </button>
+          
+          <button 
+            className="action-btn info-btn"
+            title="Информация о файле"
+          >
+            ℹ️ Инфо
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -70,36 +195,68 @@ function HomePage() {
               {uploads.map((upload, index) => (
                 <div key={index} className="upload-card">
                   <div className="upload-header">
-                    <h3>{upload.fullName}</h3>
-                    <span className="upload-date">
-                      {new Date(upload.timestamp).toLocaleString('ru-RU')}
-                    </span>
-                  </div>
-                  <div className="upload-details">
-                    {upload.group && (
-                      <div className="detail-item">
-                        <span className="label">Группа:</span>
-                        <span className="value">{upload.group}</span>
+                    <div className="student-info">
+                      <h3>{upload.fullName}</h3>
+                      <div className="upload-meta">
+                        <span className="upload-date">
+                          📅 {new Date(upload.timestamp).toLocaleString('ru-RU')}
+                        </span>
+                        {upload.group && (
+                          <span className="group-badge">
+                            👥 {upload.group}
+                          </span>
+                        )}
                       </div>
-                    )}
+                    </div>
+                    <div className="upload-actions">
+                      <button className="action-btn share-btn" title="Поделиться">
+                        🔗
+                      </button>
+                      <button className="action-btn more-btn" title="Больше действий">
+                        ⋯
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="upload-details">
                     {upload.subject && (
                       <div className="detail-item">
-                        <span className="label">Предмет:</span>
+                        <span className="label">📚 Предмет:</span>
                         <span className="value">{upload.subject}</span>
                       </div>
                     )}
+                    
                     <div className="files-section">
-                      <h4>Файлы:</h4>
-                      <div className="file-list">
-                        <div className="file-item exe-file">
-                          <span className="file-icon">🗃️</span>
-                          <span className="file-name">{upload.files.exe}</span>
-                        </div>
-                        <div className="file-item docx-file">
-                          <span className="file-icon">📄</span>
-                          <span className="file-name">{upload.files.docx}</span>
-                        </div>
+                      <h4>📁 Загруженные файлы ({Object.keys(upload.files).length})</h4>
+                      <div className="files-grid">
+                        {upload.files.exe && (
+                          <FileCard 
+                            fileName={upload.files.exe}
+                            fileType="exe"
+                            fullName={upload.fullName}
+                            upload={upload}
+                          />
+                        )}
+                        {upload.files.docx && (
+                          <FileCard 
+                            fileName={upload.files.docx}
+                            fileType="docx"
+                            fullName={upload.fullName}
+                            upload={upload}
+                          />
+                        )}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="upload-footer">
+                    <div className="upload-stats">
+                      <span className="stat-item">
+                        📊 Всего файлов: {Object.keys(upload.files).length}
+                      </span>
+                      <span className="stat-item">
+                        🕒 Загружено: {new Date(upload.timestamp).toLocaleDateString('ru-RU')}
+                      </span>
                     </div>
                   </div>
                 </div>

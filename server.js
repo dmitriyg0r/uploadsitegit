@@ -190,6 +190,85 @@ app.get('/api/uploads', (req, res) => {
   }
 });
 
+// Новый эндпоинт для скачивания файлов
+app.get('/api/download/:fullName/:fileName', (req, res) => {
+  try {
+    const { fullName, fileName } = req.params;
+    const decodedFullName = decodeURIComponent(fullName);
+    const decodedFileName = decodeURIComponent(fileName);
+    
+    const filePath = path.join(uploadsDir, decodedFullName, decodedFileName);
+    
+    // Проверяем существование файла
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Файл не найден' });
+    }
+    
+    // Проверяем, что файл находится в правильной директории (защита от path traversal)
+    const normalizedPath = path.normalize(filePath);
+    const normalizedUploadsDir = path.normalize(uploadsDir);
+    if (!normalizedPath.startsWith(normalizedUploadsDir)) {
+      return res.status(403).json({ error: 'Доступ запрещен' });
+    }
+    
+    // Устанавливаем заголовки для скачивания
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(decodedFileName)}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    
+    // Отправляем файл
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
+    
+    fileStream.on('error', (error) => {
+      console.error('Ошибка чтения файла:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'Ошибка чтения файла' });
+      }
+    });
+    
+  } catch (error) {
+    console.error('Ошибка скачивания файла:', error);
+    res.status(500).json({ error: 'Ошибка сервера при скачивании файла' });
+  }
+});
+
+// Новый эндпоинт для получения информации о файле
+app.get('/api/file-info/:fullName/:fileName', (req, res) => {
+  try {
+    const { fullName, fileName } = req.params;
+    const decodedFullName = decodeURIComponent(fullName);
+    const decodedFileName = decodeURIComponent(fileName);
+    
+    const filePath = path.join(uploadsDir, decodedFullName, decodedFileName);
+    
+    // Проверяем существование файла
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Файл не найден' });
+    }
+    
+    // Проверяем, что файл находится в правильной директории
+    const normalizedPath = path.normalize(filePath);
+    const normalizedUploadsDir = path.normalize(uploadsDir);
+    if (!normalizedPath.startsWith(normalizedUploadsDir)) {
+      return res.status(403).json({ error: 'Доступ запрещен' });
+    }
+    
+    // Получаем информацию о файле
+    const stats = fs.statSync(filePath);
+    
+    res.json({
+      size: stats.size,
+      created: stats.birthtime,
+      modified: stats.mtime,
+      name: decodedFileName
+    });
+    
+  } catch (error) {
+    console.error('Ошибка получения информации о файле:', error);
+    res.status(500).json({ error: 'Ошибка сервера при получении информации о файле' });
+  }
+});
+
 // GitHub Webhook endpoint
 app.post('/webhook/github', async (req, res) => {
   try {
