@@ -28,10 +28,8 @@ RUN npm run build && npm prune --production
 # Этап продакшена с оптимизированным nginx
 FROM nginx:1.25-alpine
 
-# Оптимизация nginx для быстрого запуска
-RUN apk --no-cache add curl && \
-    rm -rf /var/cache/apk/* && \
-    rm -rf /usr/share/nginx/html/*
+# Очистка nginx для быстрого запуска
+RUN rm -rf /usr/share/nginx/html/*
 
 # Копируем собранное приложение
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -42,10 +40,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Устанавливаем правильные права доступа
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
-
-# Добавляем healthcheck для быстрой проверки готовности
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:80/ || exit 1
 
 # Открываем порт
 EXPOSE 80

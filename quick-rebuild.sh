@@ -32,11 +32,11 @@ docker-compose up -d
 # Ожидание готовности сервисов
 log_time "Ожидание готовности сервисов..."
 echo "Проверяем backend..."
-timeout 60 bash -c 'until curl -f http://localhost:5001/health > /dev/null 2>&1; do sleep 2; done'
+timeout 60 bash -c 'until wget --spider --quiet http://localhost:5001/health 2>/dev/null; do sleep 2; done'
 echo "✅ Backend готов!"
 
 echo "Проверяем frontend..."
-timeout 60 bash -c 'until curl -f http://localhost:8081 > /dev/null 2>&1; do sleep 2; done'
+timeout 60 bash -c 'until wget --spider --quiet http://localhost:8081/nginx-health 2>/dev/null; do sleep 2; done'
 echo "✅ Frontend готов!"
 
 # Показываем статус
@@ -49,7 +49,7 @@ docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsa
 
 # Проверяем доступность сайта
 echo -e "\n🌐 Проверка доступности:"
-if curl -s -o /dev/null -w "%{http_code}" http://localhost:8081 | grep -q "200"; then
+if wget --spider --quiet http://localhost:8081 2>/dev/null; then
     echo "✅ Сайт доступен на http://localhost:8081"
 else
     echo "❌ Сайт недоступен"

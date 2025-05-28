@@ -10,10 +10,8 @@ RUN npm ci --only=production && npm cache clean --force
 # Основной этап с минимальным размером
 FROM node:18-alpine
 
-# Устанавливаем необходимые системные пакеты
-RUN apk --no-cache add curl && \
-    rm -rf /var/cache/apk/* && \
-    addgroup -g 1001 -S nodejs && \
+# Создаем пользователя без дополнительных пакетов
+RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
 WORKDIR /app
@@ -27,10 +25,6 @@ COPY --chown=nodejs:nodejs . .
 
 # Создаём папку для загрузок
 RUN mkdir -p uploads && chown -R nodejs:nodejs uploads
-
-# Добавляем healthcheck для быстрой проверки готовности
-HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:5000/health || exit 1
 
 # Переключаемся на непривилегированного пользователя
 USER nodejs

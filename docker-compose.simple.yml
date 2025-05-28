@@ -26,13 +26,6 @@ services:
         reservations:
           memory: 64M
           cpus: '0.1'
-    # Простой healthcheck без curl
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
 
   # Frontend с nginx
   frontend:
@@ -44,8 +37,7 @@ services:
       - "8081:80"
       - "8443:443"
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     restart: unless-stopped
     networks:
       - uploadsite-network
@@ -60,13 +52,6 @@ services:
         reservations:
           memory: 32M
           cpus: '0.1'
-    # Простой healthcheck для nginx
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/nginx-health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
 
 volumes:
   uploads:
