@@ -3,10 +3,12 @@ version: '3.8'
 services:
   # Backend сервер
   backend:
-    build: ./server
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
     container_name: uploadsite-backend
     ports:
-      - "5001:5000"  # Используем 5001 чтобы не конфликтовать с локальным
+      - "5001:5000"
     volumes:
       - ./uploads:/app/uploads
     environment:
@@ -15,25 +17,62 @@ services:
     restart: unless-stopped
     networks:
       - uploadsite-network
+    # Ограничения ресурсов для стабильной работы
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    # Healthcheck для быстрой проверки готовности
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   # Frontend с nginx
   frontend:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: uploadsite-frontend
     ports:
       - "8081:80"
-      - "8443:443"  # Для HTTPS (если потребуется SSL)
+      - "8443:443"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - uploadsite-network
     environment:
       - VIRTUAL_HOST=space-point.ru,www.space-point.ru
+    # Ограничения ресурсов
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.3'
+        reservations:
+          memory: 32M
+          cpus: '0.1'
+    # Healthcheck для nginx
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 volumes:
   uploads:
 
 networks:
   uploadsite-network:
-    driver: bridge 
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1500 

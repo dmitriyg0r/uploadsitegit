@@ -62,6 +62,14 @@ const upload = multer({
 });
 
 // Маршруты
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
 app.post('/api/upload', upload.fields([
   { name: 'exeFile', maxCount: 1 },
   { name: 'docxFile', maxCount: 1 }
