@@ -5,10 +5,12 @@ WORKDIR /app
 
 # Устанавливаем зависимости
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# Копируем исходный код и собираем
+# Копируем исходный код
 COPY . .
+
+# Собираем проект
 RUN npm run build
 
 # Этап продакшена с nginx
@@ -23,4 +25,4 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Открываем порт
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

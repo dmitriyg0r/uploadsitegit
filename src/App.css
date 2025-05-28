@@ -13,13 +13,13 @@ body {
 
 .App {
   min-height: 100vh;
+  width: 100%;
 }
 
 /* Общие стили для страниц */
 .home-page,
 .upload-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   padding: 20px;
   min-height: 100vh;
 }
@@ -33,6 +33,10 @@ body {
   margin-bottom: 40px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
 }
 
 .page-header h1 {
@@ -82,6 +86,9 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* Стили для главной страницы */
@@ -159,25 +166,29 @@ body {
 
 .uploads-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
-  max-height: 70vh;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  max-height: 75vh;
   overflow-y: auto;
   padding-right: 10px;
 }
 
 .uploads-grid::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .uploads-grid::-webkit-scrollbar-track {
   background: #f1f1f1;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .uploads-grid::-webkit-scrollbar-thumb {
   background: #888;
-  border-radius: 3px;
+  border-radius: 4px;
+}
+
+.uploads-grid::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 .upload-card {
@@ -488,6 +499,23 @@ body {
 }
 
 /* Адаптивность */
+@media (min-width: 1400px) {
+  .uploads-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+  }
+  
+  .main-content {
+    padding: 50px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .uploads-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .uploads-grid {
     grid-template-columns: 1fr;

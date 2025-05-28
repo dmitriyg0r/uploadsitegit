@@ -6,7 +6,7 @@ services:
     build: ./server
     container_name: uploadsite-backend
     ports:
-      - "5000:5000"
+      - "5001:5000"  # Используем 5001 чтобы не конфликтовать с локальным
     volumes:
       - ./uploads:/app/uploads
     environment:
@@ -21,8 +21,8 @@ services:
     build: .
     container_name: uploadsite-frontend
     ports:
-      - "80:80"
-      - "443:443"  # Для HTTPS (если потребуется SSL)
+      - "8081:80"
+      - "8443:443"  # Для HTTPS (если потребуется SSL)
     depends_on:
       - backend
     restart: unless-stopped

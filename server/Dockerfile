@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Устанавливаем зависимости
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
 # Копируем исходный код
 COPY . .
@@ -16,4 +16,4 @@ RUN mkdir -p uploads
 EXPOSE 5000
 
 # Запускаем сервер
-CMD ["npm", "start"] 
+CMD ["node", "server.js"] 
