@@ -131,19 +131,19 @@ function UploadPage() {
                   name="group"
                   value={formData.group}
                   onChange={handleInputChange}
-                  placeholder="Например: ИС-21-1"
+                  placeholder="Например: 18ПрД4310"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="subject">Предмет/Работа</label>
+                <label htmlFor="subject">Предмет/проект</label>
                 <input
                   type="text"
                   id="subject"
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  placeholder="Например: Курсовая работа по программированию"
+                  placeholder="Например: Тер.Вер"
                 />
               </div>
 
@@ -221,7 +221,7 @@ function UploadPage() {
                 <ul>
                   <li>Файлы сохраняются на сервере</li>
                   <li>Ваша работа появляется в общем списке</li>
-                  <li>Все одногруппники смогут увидеть вашу работу</li>
+                  <li>Все одногруппники и преподаватели смогут увидеть вашу работу</li>
                 </ul>
               </div>
             </div>

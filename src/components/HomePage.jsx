@@ -17,11 +17,13 @@ function HomePage() {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/api/uploads`);
-      setUploads(response.data);
+      const uploadData = Array.isArray(response.data) ? response.data : [];
+      setUploads(uploadData);
       setError('');
     } catch (error) {
       console.error('Ошибка получения списка загрузок:', error);
       setError('Ошибка загрузки данных');
+      setUploads([]);
     } finally {
       setLoading(false);
     }
@@ -30,8 +32,8 @@ function HomePage() {
   return (
     <div className="home-page">
       <header className="page-header">
-        <h1>📚 Работы студентов</h1>
-        <p>Просмотр загруженных программ и документации одногруппников</p>
+        <h1>проекты студентов группы 18ПрД4310</h1>
+        <p>Просмотр загруженных работ</p>
         <Link to="/upload" className="upload-link">
           📤 Загрузить свою работу
         </Link>
