@@ -196,15 +196,6 @@ app.post('/webhook/github', express.raw({ type: 'application/json' }), async (re
     const signature = req.headers['x-hub-signature-256'];
     const payload = req.body;
     
-    // Проверяем подпись webhook'а (опционально, для безопасности)
-    // const secret = process.env.GITHUB_WEBHOOK_SECRET;
-    // if (secret && signature) {
-    //   const expectedSignature = 'sha256=' + crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    //   if (signature !== expectedSignature) {
-    //     return res.status(401).json({ error: 'Неверная подпись webhook' });
-    //   }
-    // }
-    
     const event = JSON.parse(payload.toString());
     
     // Проверяем что это push в main ветку
