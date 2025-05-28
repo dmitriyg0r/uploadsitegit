@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Backend сервер
+  backend:
+    build: ./server
+    container_name: uploadsite-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+    restart: unless-stopped
+    networks:
+      - uploadsite-network
+
+  # Frontend с nginx
+  frontend:
+    build: .
+    container_name: uploadsite-frontend
+    ports:
+      - "80:80"
+      - "443:443"  # Для HTTPS (если потребуется SSL)
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - uploadsite-network
+    environment:
+      - VIRTUAL_HOST=space-point.ru,www.space-point.ru
+
+volumes:
+  uploads:
+
+networks:
+  uploadsite-network:
+    driver: bridge 
