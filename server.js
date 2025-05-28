@@ -50,20 +50,20 @@ async function deployApplication() {
       
       writeDeployLog(`Git pull выполнен: ${stdout}`);
       
-      // Выполняем pm2 restart spacehub
-      exec('pm2 restart spacehub', (error, stdout, stderr) => {
+      // Выполняем сборку фронтенда
+      exec('npm run build', { cwd: __dirname }, (error, stdout, stderr) => {
         if (error) {
-          writeDeployLog(`Ошибка pm2 restart: ${error.message}`, 'error');
+          writeDeployLog(`Ошибка npm run build: ${error.message}`, 'error');
         } else {
-          writeDeployLog(`PM2 restart выполнен: ${stdout}`);
+          writeDeployLog(`NPM build выполнен: ${stdout}`);
         }
         
-        // Выполняем npm run start
-        exec('npm run start', { cwd: __dirname }, (error, stdout, stderr) => {
+        // Выполняем pm2 restart spacehub
+        exec('pm2 restart spacehub', (error, stdout, stderr) => {
           if (error) {
-            writeDeployLog(`Ошибка npm run start: ${error.message}`, 'error');
+            writeDeployLog(`Ошибка pm2 restart: ${error.message}`, 'error');
           } else {
-            writeDeployLog(`NPM start выполнен: ${stdout}`);
+            writeDeployLog(`PM2 restart выполнен: ${stdout}`);
           }
           
           writeDeployLog('Процесс развертывания завершен');
@@ -191,27 +191,28 @@ app.get('/api/uploads', (req, res) => {
 });
 
 // GitHub Webhook endpoint
-app.post('/webhook/github', express.raw({ type: 'application/json' }), async (req, res) => {
+app.post('/webhook/github', async (req, res) => {
   try {
     const signature = req.headers['x-hub-signature-256'];
-    const payload = req.body;
-    
-    const event = JSON.parse(payload.toString());
+    const event = req.body; // Используем уже распарсенный JSON
     
     // Проверяем что это push в main ветку
     if (event.ref === 'refs/heads/main' || event.ref === 'refs/heads/master') {
       writeDeployLog(`Получен webhook от GitHub. Коммит: ${event.head_commit?.message || 'unknown'}`);
       
-      // Запускаем развертывание асинхронно
-      deployApplication()
-        .then(result => {
-          writeDeployLog(`Развертывание успешно завершено: ${result.message}`);
-        })
-        .catch(error => {
-          writeDeployLog(`Ошибка развертывания: ${error.message}`, 'error');
-        });
-      
+      // Отправляем ответ немедленно
       res.json({ message: 'Webhook получен, развертывание запущено' });
+      
+      // Запускаем развертывание асинхронно
+      setTimeout(async () => {
+        try {
+          const result = await deployApplication();
+          writeDeployLog(`Развертывание успешно завершено: ${result.message}`);
+        } catch (error) {
+          writeDeployLog(`Ошибка развертывания: ${error.message}`, 'error');
+        }
+      }, 100);
+      
     } else {
       writeDeployLog(`Webhook получен, но ветка ${event.ref} игнорируется`);
       res.json({ message: 'Webhook получен, но развертывание не требуется' });
