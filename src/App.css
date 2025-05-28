@@ -6,9 +6,9 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #ffffff;
+  background: #2f00ffa6;
   min-height: 100vh;
-  color: #1a1a1a;
+  color: #000000;
   width: 100%;
   display: flex;
 }
