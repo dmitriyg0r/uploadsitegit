@@ -227,11 +227,23 @@ app.post('/webhook/github', express.raw({ type: 'application/json' }), async (re
 app.post('/api/deploy', async (req, res) => {
   try {
     writeDeployLog('Запущено ручное развертывание');
-    const result = await deployApplication();
-    res.json(result);
+    
+    // Отправляем ответ немедленно
+    res.json({ success: true, message: 'Развертывание запущено' });
+    
+    // Запускаем развертывание асинхронно после отправки ответа
+    setTimeout(async () => {
+      try {
+        const result = await deployApplication();
+        writeDeployLog(`Развертывание завершено: ${result.message}`);
+      } catch (error) {
+        writeDeployLog(`Ошибка развертывания: ${error.message}`, 'error');
+      }
+    }, 100); // Небольшая задержка чтобы ответ успел отправиться
+    
   } catch (error) {
-    writeDeployLog(`Ошибка ручного развертывания: ${error.message}`, 'error');
-    res.status(500).json({ error: 'Ошибка развертывания', details: error.message });
+    writeDeployLog(`Ошибка запуска развертывания: ${error.message}`, 'error');
+    res.status(500).json({ error: 'Ошибка запуска развертывания', details: error.message });
   }
 });
 
@@ -289,6 +301,6 @@ app.use((error, req, res, next) => {
   res.status(400).json({ error: error.message });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 }); 
