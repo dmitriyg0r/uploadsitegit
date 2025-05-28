@@ -32,9 +32,6 @@ server/uploads/
 .env.local
 .env.production
 
-# Docker
-.dockerignore
-
 # Backend node_modules
 server/node_modules/
 
