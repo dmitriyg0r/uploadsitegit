@@ -228,7 +228,12 @@ function HomePage() {
                 <div key={index} className="upload-card">
                   <div className="upload-header">
                     <div className="student-info">
-                      <h3>{getWorkTitle(upload)}</h3>
+                      <Link 
+                        to={`/work/${encodeURIComponent(upload.fullName)}`} 
+                        className="work-title-link"
+                      >
+                        <h3>{getWorkTitle(upload)}</h3>
+                      </Link>
                       <div className="upload-meta">
                         <span className="upload-date">
                           📅 {new Date(upload.timestamp).toLocaleString('ru-RU', {
@@ -247,6 +252,13 @@ function HomePage() {
                       </div>
                     </div>
                     <div className="upload-actions">
+                      <Link
+                        to={`/work/${encodeURIComponent(upload.fullName)}`}
+                        className="action-btn details-btn"
+                        title="Подробнее"
+                      >
+                        👁️
+                      </Link>
                       <button
                         className="action-btn share-btn"
                         onClick={() => handleShare(upload)}

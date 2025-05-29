@@ -354,7 +354,12 @@ const DeployLogsPage = () => {
                 {uploads.map((upload, index) => (
                   <div key={index} className="table-row">
                     <div className="col-student">
-                      <strong>{getWorkTitleForAdmin(upload)}</strong>
+                      <Link 
+                        to={`/work/${encodeURIComponent(upload.fullName)}`} 
+                        className="work-title-admin-link"
+                      >
+                        <strong>{getWorkTitleForAdmin(upload)}</strong>
+                      </Link>
                       <div className="authors-admin-list" style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
                         👤 {getAuthorsDisplayForAdmin(upload).map((author, index) => (
                           <div key={index} style={{ marginLeft: '16px' }}>{author}</div>
