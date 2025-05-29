@@ -1521,3 +1521,109 @@ body {
     gap: 12px;
   }
 }
+
+/* Стили для ввода авторов */
+.authors-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.author-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.author-input {
+  flex: 1;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #f0f6fc;
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.author-input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+}
+
+.author-input::placeholder {
+  color: #8b949e;
+}
+
+.remove-author-btn {
+  background: #da3633;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.remove-author-btn:hover {
+  background: #f85149;
+}
+
+.add-author-btn {
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  align-self: flex-start;
+}
+
+.add-author-btn:hover {
+  background: #2ea043;
+}
+
+.add-author-btn:disabled {
+  background: #21262d;
+  color: #8b949e;
+  cursor: not-allowed;
+}
+
+.authors-hint {
+  font-size: 12px;
+  color: #8b949e;
+  font-style: italic;
+  padding: 8px 12px;
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+/* Стиль для нередактируемого поля группы */
+.group-input-readonly {
+  background: #21262d !important;
+  border: 1px solid #30363d !important;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #8b949e !important;
+  font-size: 14px;
+  cursor: not-allowed;
+}
+
+.group-input-readonly:focus {
+  outline: none;
+  border-color: #30363d !important;
+  box-shadow: none !important;
+}

@@ -133,28 +133,48 @@ app.post('/api/upload', upload.fields([
   { name: 'docxFile', maxCount: 1 }
 ]), (req, res) => {
   try {
-    const { fullName, secondAuthor, group, subject } = req.body;
+    const { fullName, secondAuthor, group, subject, authorsCount } = req.body;
     
-    if (!fullName) {
-      return res.status(400).json({ error: 'ФИО основного автора обязательно для заполнения' });
+    // Новая логика: сначала пытаемся получить авторов из новых полей
+    let authors = [];
+    
+    if (authorsCount && parseInt(authorsCount) > 0) {
+      // Новый формат - собираем авторов из полей author_0, author_1, etc.
+      const count = parseInt(authorsCount);
+      for (let i = 0; i < count; i++) {
+        const authorField = req.body[`author_${i}`];
+        if (authorField && authorField.trim()) {
+          authors.push(authorField.trim());
+        }
+      }
+    } else {
+      // Старый формат - для обратной совместимости
+      if (fullName && fullName.trim()) {
+        authors.push(fullName.trim());
+      }
+      if (secondAuthor && secondAuthor.trim()) {
+        authors.push(secondAuthor.trim());
+      }
+    }
+    
+    // Проверяем, что есть хотя бы один автор
+    if (authors.length === 0) {
+      return res.status(400).json({ error: 'Необходимо указать хотя бы одного автора работы' });
     }
     
     if (!req.files || !req.files.exeFile || !req.files.docxFile) {
       return res.status(400).json({ error: 'Необходимо загрузить и exe файл и документацию' });
     }
     
-    // Создаем авторов массив
-    const authors = [fullName.trim()];
-    if (secondAuthor && secondAuthor.trim()) {
-      authors.push(secondAuthor.trim());
-    }
+    // Основной автор - первый в списке
+    const mainAuthor = authors[0];
     
     // Сохраняем информацию о загрузке
     const uploadInfo = {
       timestamp: new Date().toISOString(),
-      fullName: fullName.trim(),
-      secondAuthor: secondAuthor ? secondAuthor.trim() : null,
-      authors: authors,
+      fullName: mainAuthor, // Основной автор для совместимости
+      secondAuthor: authors.length > 1 ? authors.slice(1).join(', ') : null, // Для совместимости
+      authors: authors, // Новый формат - массив всех авторов
       group: group || '',
       subject: subject || '',
       files: {
@@ -164,7 +184,7 @@ app.post('/api/upload', upload.fields([
     };
     
     // Сохраняем мета-информацию в JSON файл с правильной UTF-8 кодировкой
-    const metaPath = path.join(uploadsDir, fullName, 'upload_info.json');
+    const metaPath = path.join(uploadsDir, mainAuthor, 'upload_info.json');
     fs.writeFileSync(metaPath, JSON.stringify(uploadInfo, null, 2), 'utf8');
     
     res.json({ 

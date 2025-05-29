@@ -4,8 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 function UploadPage() {
   const [formData, setFormData] = useState({
-    fullName: '',
-    secondAuthor: '',
+    authors: [''],
     group: '18ПрД4310',
     subject: ''
   });
@@ -28,6 +27,31 @@ function UploadPage() {
     }));
   };
 
+  const handleAuthorChange = (index, value) => {
+    setFormData(prev => ({
+      ...prev,
+      authors: prev.authors.map((author, i) => i === index ? value : author)
+    }));
+  };
+
+  const addAuthor = () => {
+    if (formData.authors.length < 4) {
+      setFormData(prev => ({
+        ...prev,
+        authors: [...prev.authors, '']
+      }));
+    }
+  };
+
+  const removeAuthor = (index) => {
+    if (formData.authors.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        authors: prev.authors.filter((_, i) => i !== index)
+      }));
+    }
+  };
+
   const handleFileChange = (e) => {
     const { name, files: selectedFiles } = e.target;
     setFiles(prev => ({
@@ -39,8 +63,9 @@ function UploadPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.fullName.trim()) {
-      setMessage({ text: 'ФИО основного автора обязательно для заполнения', type: 'error' });
+    const filledAuthors = formData.authors.filter(author => author.trim());
+    if (filledAuthors.length === 0) {
+      setMessage({ text: 'Необходимо указать хотя бы одного автора работы', type: 'error' });
       return;
     }
     
@@ -53,10 +78,19 @@ function UploadPage() {
     setMessage({ text: '', type: '' });
 
     const uploadData = new FormData();
-    uploadData.append('fullName', formData.fullName.trim());
-    if (formData.secondAuthor.trim()) {
-      uploadData.append('secondAuthor', formData.secondAuthor.trim());
+    
+    const cleanAuthors = filledAuthors.map(author => author.trim());
+    uploadData.append('fullName', cleanAuthors[0]);
+    
+    if (cleanAuthors.length > 1) {
+      uploadData.append('secondAuthor', cleanAuthors.slice(1).join(', '));
     }
+    
+    cleanAuthors.forEach((author, index) => {
+      uploadData.append(`author_${index}`, author);
+    });
+    uploadData.append('authorsCount', cleanAuthors.length.toString());
+    
     uploadData.append('group', formData.group);
     uploadData.append('subject', formData.subject);
     uploadData.append('exeFile', files.exeFile);
@@ -71,10 +105,8 @@ function UploadPage() {
 
       setMessage({ text: '✅ Файлы успешно загружены!', type: 'success' });
       
-      // Очищаем форму
       setFormData({
-        fullName: '',
-        secondAuthor: '',
+        authors: [''],
         group: '18ПрД4310',
         subject: ''
       });
@@ -83,11 +115,9 @@ function UploadPage() {
         docxFile: null
       });
       
-      // Очищаем input файлов
       document.getElementById('exeFile').value = '';
       document.getElementById('docxFile').value = '';
       
-      // Через 2 секунды переходим на главную страницу
       setTimeout(() => {
         navigate('/');
       }, 2000);
@@ -95,7 +125,7 @@ function UploadPage() {
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Ошибка при загрузке файлов';
       setMessage({ text: `❌ ${errorMessage}`, type: 'error' });
-    } finally {
+    
       setUploading(false);
     }
   };
@@ -117,28 +147,42 @@ function UploadPage() {
             
             <form onSubmit={handleSubmit} className="upload-form">
               <div className="form-group">
-                <label htmlFor="fullName">ФИО основного автора *</label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  placeholder="Иванов Иван Иванович"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="secondAuthor">ФИО второго автора (опционально)</label>
-                <input
-                  type="text"
-                  id="secondAuthor"
-                  name="secondAuthor"
-                  value={formData.secondAuthor}
-                  onChange={handleInputChange}
-                  placeholder="Петров Петр Петрович"
-                />
+                <label>Авторы работы *</label>
+                <div className="authors-container">
+                  {formData.authors.map((author, index) => (
+                    <div key={index} className="author-input-row">
+                      <input
+                        type="text"
+                        value={author}
+                        onChange={(e) => handleAuthorChange(index, e.target.value)}
+                        placeholder={`ФИО ${index === 0 ? 'основного' : index + 1 + '-го'} автора`}
+                        className="author-input"
+                      />
+                      {formData.authors.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeAuthor(index)}
+                          className="remove-author-btn"
+                          title="Удалить автора"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {formData.authors.length < 4 && (
+                    <button
+                      type="button"
+                      onClick={addAuthor}
+                      className="add-author-btn"
+                    >
+                      + Добавить автора
+                    </button>
+                  )}
+                  <div className="authors-hint">
+                    Можно добавить до 4 авторов. Первый автор считается основным.
+                  </div>
+                </div>
               </div>
 
               <div className="form-group">
@@ -148,8 +192,9 @@ function UploadPage() {
                   id="group"
                   name="group"
                   value={formData.group}
-                  onChange={handleInputChange}
-                  placeholder="18ПрД4310"
+                  readOnly
+                  className="group-input-readonly"
+                  title="Поле группы зафиксировано"
                 />
               </div>
 
@@ -246,10 +291,11 @@ function UploadPage() {
               <div className="info-item">
                 <h4>💡 Совместная работа</h4>
                 <ul>
-                  <li>Если работа выполнена двумя разработчиками, укажите второго автора</li>
-                  <li>Основной автор указывается в первом поле (обязательно)</li>
+                  <li>Если работа выполнена несколькими разработчиками, добавьте всех авторов</li>
+                  <li>Основной автор указывается первым (обязательно)</li>
                   <li>Папка будет создана по имени основного автора</li>
-                  <li>В карточке работы будут отображены оба автора</li>
+                  <li>В карточке работы будут отображены все авторы</li>
+                  <li>Максимальное количество авторов: 4</li>
                 </ul>
               </div>
             </div>
