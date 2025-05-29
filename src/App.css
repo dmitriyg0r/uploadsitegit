@@ -1561,6 +1561,24 @@ body {
   }
 }
 
+/* Стили для отображения авторов в колонну */
+.authors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.author-name {
+  color: #f0f6fc;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.authors-admin-list {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Стили для ввода авторов */
 .authors-container {
   display: flex;
@@ -1715,8 +1733,8 @@ body {
 }
 
 .upload-progress {
-  margin-top: 16px;
-  padding: 16px;
+  margin-top: 8px;
+  padding: 12px;
   background: #161b22;
   border: 1px solid #30363d;
   border-radius: 6px;
@@ -1725,28 +1743,19 @@ body {
 
 .progress-bar {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #21262d;
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 8px;
 }
 
 .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #238636, #2ea043);
-  border-radius: 4px;
+  border-radius: 3px;
   animation: progressPulse 1.5s ease-in-out infinite;
   width: 100%;
   transform-origin: left;
-}
-
-.progress-text {
-  color: #8b949e;
-  font-size: 12px;
-  text-align: center;
-  margin: 0;
-  font-weight: 500;
 }
 
 @keyframes progressPulse {

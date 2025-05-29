@@ -113,7 +113,9 @@ function HomePage() {
   };
 
   const handleShare = (upload) => {
-    const shareText = `Работа: "${getWorkTitle(upload)}" от ${getAuthorsDisplay(upload)}`;
+    const authors = getAuthorsDisplay(upload);
+    const authorsText = authors.join(', ');
+    const shareText = `Работа: "${getWorkTitle(upload)}" от ${authorsText}`;
     if (navigator.share) {
       navigator.share({
         title: shareText,
@@ -128,13 +130,13 @@ function HomePage() {
 
   // Формируем строку с авторами
   const getAuthorsDisplay = (upload) => {
-    if (upload.authors && upload.authors.length > 1) {
-      return upload.authors.join(' и ');
+    if (upload.authors && upload.authors.length > 0) {
+      return upload.authors;
     } else if (upload.secondAuthor) {
       // Поддержка старого формата данных
-      return `${upload.fullName} и ${upload.secondAuthor}`;
+      return [upload.fullName, upload.secondAuthor];
     }
-    return upload.fullName;
+    return [upload.fullName];
   };
 
   // Получаем название работы или fallback
@@ -264,7 +266,11 @@ function HomePage() {
                   <div className="upload-details">
                     <div className="detail-item">
                       <span className="label">👤 Авторы:</span>
-                      <span className="value">{getAuthorsDisplay(upload)}</span>
+                      <div className="value authors-list">
+                        {getAuthorsDisplay(upload).map((author, index) => (
+                          <div key={index} className="author-name">{author}</div>
+                        ))}
+                      </div>
                     </div>
                     {upload.subject && (
                       <div className="detail-item">

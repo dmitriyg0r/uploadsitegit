@@ -170,13 +170,13 @@ const DeployLogsPage = () => {
 
   // Формируем строку с авторами для админ панели
   const getAuthorsDisplayForAdmin = (upload) => {
-    if (upload.authors && upload.authors.length > 1) {
-      return upload.authors.join(', ');
+    if (upload.authors && upload.authors.length > 0) {
+      return upload.authors;
     } else if (upload.secondAuthor) {
       // Поддержка старого формата данных
-      return `${upload.fullName}, ${upload.secondAuthor}`;
+      return [upload.fullName, upload.secondAuthor];
     }
-    return upload.fullName;
+    return [upload.fullName];
   };
 
   // Получаем название работы или fallback для админ панели
@@ -355,8 +355,10 @@ const DeployLogsPage = () => {
                   <div key={index} className="table-row">
                     <div className="col-student">
                       <strong>{getWorkTitleForAdmin(upload)}</strong>
-                      <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
-                        👤 {getAuthorsDisplayForAdmin(upload)}
+                      <div className="authors-admin-list" style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
+                        👤 {getAuthorsDisplayForAdmin(upload).map((author, index) => (
+                          <div key={index} style={{ marginLeft: '16px' }}>{author}</div>
+                        ))}
                       </div>
                       {(upload.authors && upload.authors.length > 1) || upload.secondAuthor ? (
                         <div style={{ fontSize: '11px', color: '#58a6ff', marginTop: '2px' }}>

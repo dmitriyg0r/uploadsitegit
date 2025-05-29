@@ -302,16 +302,15 @@ function UploadPage() {
                   '↗ Загрузить файлы'
                 )}
               </button>
-            </form>
-
-            {uploading && (
-              <div className="upload-progress">
-                <div className="progress-bar">
-                  <div className="progress-fill"></div>
+              
+              {uploading && (
+                <div className="upload-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill"></div>
+                  </div>
                 </div>
-                <p className="progress-text">{uploadProgress}</p>
-              </div>
-            )}
+              )}
+            </form>
 
             {message.text && (
               <div className={`message ${message.type === 'success' ? 'success' : 'error'}`}>
