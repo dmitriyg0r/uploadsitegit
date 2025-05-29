@@ -274,6 +274,93 @@ app.get('/api/file-info/:fullName/:fileName', (req, res) => {
   }
 });
 
+// Новый эндпоинт для удаления загруженных работ (админ функция)
+app.delete('/api/admin/uploads/:fullName', (req, res) => {
+  try {
+    const { fullName } = req.params;
+    const decodedFullName = decodeURIComponent(fullName);
+    
+    const studentDir = path.join(uploadsDir, decodedFullName);
+    
+    // Проверяем существование папки
+    if (!fs.existsSync(studentDir)) {
+      return res.status(404).json({ error: 'Работа не найдена' });
+    }
+    
+    // Проверяем, что папка находится в правильной директории
+    const normalizedPath = path.normalize(studentDir);
+    const normalizedUploadsDir = path.normalize(uploadsDir);
+    if (!normalizedPath.startsWith(normalizedUploadsDir)) {
+      return res.status(403).json({ error: 'Доступ запрещен' });
+    }
+    
+    // Рекурсивно удаляем папку со всеми файлами
+    fs.rmSync(studentDir, { recursive: true, force: true });
+    
+    res.json({ 
+      success: true, 
+      message: `Работа студента "${decodedFullName}" успешно удалена` 
+    });
+    
+  } catch (error) {
+    console.error('Ошибка удаления работы:', error);
+    res.status(500).json({ error: 'Ошибка сервера при удалении работы' });
+  }
+});
+
+// Новый эндпоинт для получения статистики (админ функция)
+app.get('/api/admin/stats', (req, res) => {
+  try {
+    const studentDirs = fs.readdirSync(uploadsDir);
+    const stats = {
+      totalUploads: 0,
+      totalSize: 0,
+      uploadsByDate: {},
+      recentUploads: []
+    };
+    
+    studentDirs.forEach(studentDir => {
+      const metaPath = path.join(uploadsDir, studentDir, 'upload_info.json');
+      if (fs.existsSync(metaPath)) {
+        const uploadInfo = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+        stats.totalUploads++;
+        
+        // Подсчитываем размер всех файлов в папке
+        const studentDirPath = path.join(uploadsDir, studentDir);
+        const files = fs.readdirSync(studentDirPath);
+        files.forEach(file => {
+          const filePath = path.join(studentDirPath, file);
+          if (fs.statSync(filePath).isFile() && file !== 'upload_info.json') {
+            stats.totalSize += fs.statSync(filePath).size;
+          }
+        });
+        
+        // Группируем по датам
+        const date = uploadInfo.timestamp.split('T')[0];
+        stats.uploadsByDate[date] = (stats.uploadsByDate[date] || 0) + 1;
+        
+        // Добавляем в недавние загрузки
+        stats.recentUploads.push({
+          fullName: uploadInfo.fullName,
+          timestamp: uploadInfo.timestamp,
+          group: uploadInfo.group,
+          subject: uploadInfo.subject
+        });
+      }
+    });
+    
+    // Сортируем недавние загрузки по дате
+    stats.recentUploads.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    stats.recentUploads = stats.recentUploads.slice(0, 10); // Последние 10
+    
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.json(stats);
+  } catch (error) {
+    console.error('Ошибка получения статистики:', error);
+    res.status(500).json({ error: 'Ошибка сервера при получении статистики' });
+  }
+});
+
 // GitHub Webhook endpoint
 app.post('/webhook/github', async (req, res) => {
   try {
