@@ -133,20 +133,28 @@ app.post('/api/upload', upload.fields([
   { name: 'docxFile', maxCount: 1 }
 ]), (req, res) => {
   try {
-    const { fullName, group, subject } = req.body;
+    const { fullName, secondAuthor, group, subject } = req.body;
     
     if (!fullName) {
-      return res.status(400).json({ error: 'ФИО обязательно для заполнения' });
+      return res.status(400).json({ error: 'ФИО основного автора обязательно для заполнения' });
     }
     
     if (!req.files || !req.files.exeFile || !req.files.docxFile) {
       return res.status(400).json({ error: 'Необходимо загрузить и exe файл и документацию' });
     }
     
+    // Создаем авторов массив
+    const authors = [fullName.trim()];
+    if (secondAuthor && secondAuthor.trim()) {
+      authors.push(secondAuthor.trim());
+    }
+    
     // Сохраняем информацию о загрузке
     const uploadInfo = {
       timestamp: new Date().toISOString(),
-      fullName,
+      fullName: fullName.trim(),
+      secondAuthor: secondAuthor ? secondAuthor.trim() : null,
+      authors: authors,
       group: group || '',
       subject: subject || '',
       files: {

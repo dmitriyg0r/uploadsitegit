@@ -168,6 +168,17 @@ const DeployLogsPage = () => {
     );
   };
 
+  // Формируем строку с авторами для админ панели
+  const getAuthorsDisplayForAdmin = (upload) => {
+    if (upload.authors && upload.authors.length > 1) {
+      return upload.authors.join(', ');
+    } else if (upload.secondAuthor) {
+      // Поддержка старого формата данных
+      return `${upload.fullName}, ${upload.secondAuthor}`;
+    }
+    return upload.fullName;
+  };
+
   // Если не аутентифицирован, показываем форму входа
   if (!isAuthenticated) {
     return (
@@ -338,7 +349,12 @@ const DeployLogsPage = () => {
                 {uploads.map((upload, index) => (
                   <div key={index} className="table-row">
                     <div className="col-student">
-                      <strong>{upload.fullName}</strong>
+                      <strong>{getAuthorsDisplayForAdmin(upload)}</strong>
+                      {(upload.authors && upload.authors.length > 1) || upload.secondAuthor ? (
+                        <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
+                          👥 Совместная работа ({upload.authors ? upload.authors.length : 2} автора)
+                        </div>
+                      ) : null}
                     </div>
                     <div className="col-group">
                       {upload.group || '—'}

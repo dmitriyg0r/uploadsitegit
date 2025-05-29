@@ -112,7 +112,32 @@ function HomePage() {
     }
   };
 
-  const FileCard = ({ fileName, fileType, fullName, upload }) => {
+  const handleShare = (upload) => {
+    const shareText = `Работа студента: ${getAuthorsDisplay(upload)}`;
+    if (navigator.share) {
+      navigator.share({
+        title: shareText,
+        text: shareText,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      alert('Информация скопирована в буфер обмена');
+    }
+  };
+
+  // Формируем строку с авторами
+  const getAuthorsDisplay = (upload) => {
+    if (upload.authors && upload.authors.length > 1) {
+      return upload.authors.join(' и ');
+    } else if (upload.secondAuthor) {
+      // Поддержка старого формата данных
+      return `${upload.fullName} и ${upload.secondAuthor}`;
+    }
+    return upload.fullName;
+  };
+
+  const FileRow = ({ fileName, fileType, fullName, upload }) => {
     const [fileSize, setFileSize] = useState('Загрузка...');
     const fileKey = `${fullName}-${fileName}`;
     const isDownloading = downloadingFiles.has(fileKey);
@@ -196,10 +221,16 @@ function HomePage() {
                 <div key={index} className="upload-card">
                   <div className="upload-header">
                     <div className="student-info">
-                      <h3>{upload.fullName}</h3>
+                      <h3>{getAuthorsDisplay(upload)}</h3>
                       <div className="upload-meta">
                         <span className="upload-date">
-                          📅 {new Date(upload.timestamp).toLocaleString('ru-RU')}
+                          📅 {new Date(upload.timestamp).toLocaleString('ru-RU', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
                         </span>
                         {upload.group && (
                           <span className="group-badge">
@@ -209,43 +240,58 @@ function HomePage() {
                       </div>
                     </div>
                     <div className="upload-actions">
-                      <button className="action-btn share-btn" title="Поделиться">
-                        🔗
+                      <button
+                        className="action-btn share-btn"
+                        onClick={() => handleShare(upload)}
+                        title="Поделиться"
+                      >
+                        ↗
                       </button>
-                      <button className="action-btn more-btn" title="Больше действий">
+                      <button
+                        className="action-btn more-btn"
+                        title="Дополнительные действия"
+                      >
                         ⋯
                       </button>
                     </div>
                   </div>
 
                   <div className="upload-details">
+                    {(upload.authors && upload.authors.length > 1) || upload.secondAuthor ? (
+                      <div className="detail-item">
+                        <span className="label">👥 Разработчики:</span>
+                        <span className="value">
+                          {upload.authors ? upload.authors.length : 2} человека
+                        </span>
+                      </div>
+                    ) : null}
                     {upload.subject && (
                       <div className="detail-item">
                         <span className="label">📚 Предмет:</span>
                         <span className="value">{upload.subject}</span>
                       </div>
                     )}
-                    
-                    <div className="files-section">
-                      <h4>Файлы ({Object.keys(upload.files).length})</h4>
-                      <div className="files-table">
-                        {upload.files.exe && (
-                          <FileCard 
-                            fileName={upload.files.exe}
-                            fileType="exe"
-                            fullName={upload.fullName}
-                            upload={upload}
-                          />
-                        )}
-                        {upload.files.docx && (
-                          <FileCard 
-                            fileName={upload.files.docx}
-                            fileType="docx"
-                            fullName={upload.fullName}
-                            upload={upload}
-                          />
-                        )}
-                      </div>
+                  </div>
+
+                  <div className="files-section">
+                    <h4>Файлы ({Object.keys(upload.files).length})</h4>
+                    <div className="files-table">
+                      {upload.files.exe && (
+                        <FileRow 
+                          fileName={upload.files.exe}
+                          fileType="exe"
+                          fullName={upload.fullName}
+                          upload={upload}
+                        />
+                      )}
+                      {upload.files.docx && (
+                        <FileRow 
+                          fileName={upload.files.docx}
+                          fileType="docx"
+                          fullName={upload.fullName}
+                          upload={upload}
+                        />
+                      )}
                     </div>
                   </div>
 

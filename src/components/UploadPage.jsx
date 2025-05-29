@@ -5,7 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 function UploadPage() {
   const [formData, setFormData] = useState({
     fullName: '',
-    group: '',
+    secondAuthor: '',
+    group: '18ПрД4310',
     subject: ''
   });
   const [files, setFiles] = useState({
@@ -13,7 +14,8 @@ function UploadPage() {
     docxFile: null
   });
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState({ text: '', type: '' });
+  const [redirectTimer, setRedirectTimer] = useState(0);
   
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || '';
@@ -38,38 +40,42 @@ function UploadPage() {
     e.preventDefault();
     
     if (!formData.fullName.trim()) {
-      setMessage('Пожалуйста, заполните ФИО');
+      setMessage({ text: 'ФИО основного автора обязательно для заполнения', type: 'error' });
       return;
     }
     
     if (!files.exeFile || !files.docxFile) {
-      setMessage('Пожалуйста, выберите оба файла (exe и docx)');
+      setMessage({ text: 'Необходимо загрузить и exe файл и документацию', type: 'error' });
       return;
     }
 
     setUploading(true);
-    setMessage('');
+    setMessage({ text: '', type: '' });
+
+    const uploadData = new FormData();
+    uploadData.append('fullName', formData.fullName.trim());
+    if (formData.secondAuthor.trim()) {
+      uploadData.append('secondAuthor', formData.secondAuthor.trim());
+    }
+    uploadData.append('group', formData.group);
+    uploadData.append('subject', formData.subject);
+    uploadData.append('exeFile', files.exeFile);
+    uploadData.append('docxFile', files.docxFile);
 
     try {
-      const uploadData = new FormData();
-      uploadData.append('fullName', formData.fullName);
-      uploadData.append('group', formData.group);
-      uploadData.append('subject', formData.subject);
-      uploadData.append('exeFile', files.exeFile);
-      uploadData.append('docxFile', files.docxFile);
-
       const response = await axios.post(`${API_URL}/api/upload`, uploadData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      setMessage('✅ Файлы успешно загружены!');
+      setMessage({ text: '✅ Файлы успешно загружены!', type: 'success' });
       
       // Очищаем форму
       setFormData({
         fullName: '',
-        group: '',
+        secondAuthor: '',
+        group: '18ПрД4310',
         subject: ''
       });
       setFiles({
@@ -88,7 +94,7 @@ function UploadPage() {
       
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Ошибка при загрузке файлов';
-      setMessage(`❌ ${errorMessage}`);
+      setMessage({ text: `❌ ${errorMessage}`, type: 'error' });
     } finally {
       setUploading(false);
     }
@@ -111,15 +117,27 @@ function UploadPage() {
             
             <form onSubmit={handleSubmit} className="upload-form">
               <div className="form-group">
-                <label htmlFor="fullName">ФИО *</label>
+                <label htmlFor="fullName">ФИО основного автора *</label>
                 <input
                   type="text"
                   id="fullName"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="Фамилия Имя Отчество"
+                  placeholder="Иванов Иван Иванович"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="secondAuthor">ФИО второго автора (опционально)</label>
+                <input
+                  type="text"
+                  id="secondAuthor"
+                  name="secondAuthor"
+                  value={formData.secondAuthor}
+                  onChange={handleInputChange}
+                  placeholder="Петров Петр Петрович"
                 />
               </div>
 
@@ -131,19 +149,19 @@ function UploadPage() {
                   name="group"
                   value={formData.group}
                   onChange={handleInputChange}
-                  placeholder="Например: 18ПрД4310"
+                  placeholder="18ПрД4310"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="subject">Предмет/проект</label>
+                <label htmlFor="subject">Предмет/Дисциплина</label>
                 <input
                   type="text"
                   id="subject"
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
-                  placeholder="Например: Тер.Вер"
+                  placeholder="Название предмета"
                 />
               </div>
 
@@ -194,10 +212,10 @@ function UploadPage() {
               </button>
             </form>
 
-            {message && (
-              <div className={`message ${message.includes('✅') ? 'success' : 'error'}`}>
-                {message}
-                {message.includes('✅') && (
+            {message.text && (
+              <div className={`message ${message.type === 'success' ? 'success' : 'error'}`}>
+                {message.text}
+                {message.type === 'success' && (
                   <p className="redirect-info">Переходим к просмотру работ...</p>
                 )}
               </div>
@@ -222,6 +240,16 @@ function UploadPage() {
                   <li>Файлы сохраняются на сервере</li>
                   <li>Ваша работа появляется в общем списке</li>
                   <li>Все одногруппники и преподаватели смогут увидеть вашу работу</li>
+                </ul>
+              </div>
+
+              <div className="info-item">
+                <h4>💡 Совместная работа</h4>
+                <ul>
+                  <li>Если работа выполнена двумя разработчиками, укажите второго автора</li>
+                  <li>Основной автор указывается в первом поле (обязательно)</li>
+                  <li>Папка будет создана по имени основного автора</li>
+                  <li>В карточке работы будут отображены оба автора</li>
                 </ul>
               </div>
             </div>
