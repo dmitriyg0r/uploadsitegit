@@ -97,7 +97,7 @@ function UploadPage() {
   return (
     <div className="upload-page">
       <header className="page-header">
-        <h1>📤 Загрузка работы</h1>
+        <h1>↗ Загрузка работы</h1>
         <p>Загрузите свою программу и документацию</p>
         <Link to="/" className="back-link">
           ← Назад к просмотру работ
@@ -190,7 +190,7 @@ function UploadPage() {
                 className="submit-button"
                 disabled={uploading}
               >
-                {uploading ? '⏳ Загружаем...' : '📤 Загрузить файлы'}
+                {uploading ? '⏳ Загружаем...' : '↗ Загрузить файлы'}
               </button>
             </form>
 
@@ -205,7 +205,7 @@ function UploadPage() {
           </div>
 
           <div className="upload-info">
-            <h3>ℹ️ Информация</h3>
+            <h3>ℹ Информация</h3>
             <div className="info-content">
               <div className="info-item">
                 <h4>Требования к файлам:</h4>

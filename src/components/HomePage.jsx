@@ -86,13 +86,27 @@ function HomePage() {
     const extension = fileName.split('.').pop().toLowerCase();
     switch (extension) {
       case 'exe':
-        return '⚙️';
+        return '⚙';
       case 'docx':
-        return '📄';
+        return '📝';
       case 'pdf':
-        return '📕';
+        return '📄';
       case 'zip':
-        return '🗜️';
+        return '📦';
+      case 'txt':
+        return '📄';
+      case 'js':
+      case 'jsx':
+      case 'ts':
+      case 'tsx':
+        return '⟨/⟩';
+      case 'py':
+        return '🐍';
+      case 'java':
+        return '☕';
+      case 'cpp':
+      case 'c':
+        return '⚡';
       default:
         return '📎';
     }
@@ -110,21 +124,17 @@ function HomePage() {
     }, [fullName, fileName]);
 
     return (
-      <div className="file-card">
-        <div className="file-card-header">
-          <div className="file-info">
-            <span className="file-icon">{getFileIcon(fileName)}</span>
-            <div className="file-details">
-              <span className="file-name" title={fileName}>{fileName}</span>
-              <span className="file-size">{fileSize}</span>
-            </div>
-          </div>
-          <div className="file-status">
-            <span className="status-badge status-ready">✅ Готов</span>
+      <div className="file-row">
+        <div className="file-info">
+          <span className="file-icon">{getFileIcon(fileName)}</span>
+          <div className="file-details">
+            <span className="file-name" title={fileName}>{fileName}</span>
           </div>
         </div>
-        
-        <div className="file-actions">
+        <div className="file-size-col">
+          <span className="file-size">{fileSize}</span>
+        </div>
+        <div className="file-actions-col">
           <button 
             className="action-btn download-btn"
             onClick={() => downloadFile(fullName, fileName, fileType)}
@@ -134,20 +144,10 @@ function HomePage() {
             {isDownloading ? (
               <>
                 <span className="spinner-small"></span>
-                Скачивание...
               </>
             ) : (
-              <>
-                📥 Скачать
-              </>
+              '↓'
             )}
-          </button>
-          
-          <button 
-            className="action-btn info-btn"
-            title="Информация о файле"
-          >
-            ℹ️ Инфо
           </button>
         </div>
       </div>
@@ -157,10 +157,10 @@ function HomePage() {
   return (
     <div className="home-page">
       <header className="page-header">
-        <h1>проекты студентов группы 18ПрД4310</h1>
+        <h1>Проекты студентов группы 18ПрД4310</h1>
         <p>Просмотр загруженных работ</p>
         <Link to="/upload" className="upload-link">
-          📤 Загрузить работу
+          ↗ Загрузить работу
         </Link>
       </header>
 
@@ -169,7 +169,7 @@ function HomePage() {
           <div className="section-header">
             <h2>Загруженные работы ({uploads.length})</h2>
             <button onClick={fetchUploads} className="refresh-button">
-              🔄 Обновить
+              ↻ Обновить
             </button>
           </div>
           
@@ -180,14 +180,14 @@ function HomePage() {
             </div>
           ) : error ? (
             <div className="error-message">
-              <p>❌ {error}</p>
+              <p>✗ {error}</p>
               <button onClick={fetchUploads} className="retry-button">
                 Попробовать снова
               </button>
             </div>
           ) : uploads.length === 0 ? (
             <div className="no-uploads">
-              <h3>📁 Пока что никто не загрузил файлы</h3>
+              <h3>Пока что никто не загрузил файлы</h3>
               <p>Будьте первым! <Link to="/upload">Загрузите свою работу</Link></p>
             </div>
           ) : (
@@ -227,8 +227,8 @@ function HomePage() {
                     )}
                     
                     <div className="files-section">
-                      <h4>📁 Загруженные файлы ({Object.keys(upload.files).length})</h4>
-                      <div className="files-grid">
+                      <h4>Файлы ({Object.keys(upload.files).length})</h4>
+                      <div className="files-table">
                         {upload.files.exe && (
                           <FileCard 
                             fileName={upload.files.exe}
