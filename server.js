@@ -76,8 +76,8 @@ async function deployApplication() {
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 
 // Настройка Multer для загрузки файлов
 const storage = multer.diskStorage({
@@ -90,10 +90,11 @@ const storage = multer.diskStorage({
     cb(null, studentDir);
   },
   filename: (req, file, cb) => {
-    // Сохраняем файл с оригинальным именем и датой
+    // Правильно обрабатываем UTF-8 кодировку для имен файлов
+    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8');
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const extension = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, extension);
+    const extension = path.extname(originalName);
+    const basename = path.basename(originalName, extension);
     cb(null, `${basename}_${timestamp}${extension}`);
   }
 });
@@ -154,9 +155,9 @@ app.post('/api/upload', upload.fields([
       }
     };
     
-    // Сохраняем мета-информацию в JSON файл
+    // Сохраняем мета-информацию в JSON файл с правильной UTF-8 кодировкой
     const metaPath = path.join(uploadsDir, fullName, 'upload_info.json');
-    fs.writeFileSync(metaPath, JSON.stringify(uploadInfo, null, 2));
+    fs.writeFileSync(metaPath, JSON.stringify(uploadInfo, null, 2), 'utf8');
     
     res.json({ 
       message: 'Файлы успешно загружены!', 
@@ -183,6 +184,8 @@ app.get('/api/uploads', (req, res) => {
       }
     });
     
+    // Устанавливаем правильные заголовки для JSON с кириллицей
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.json(uploads);
   } catch (error) {
     console.error('Ошибка получения списка загрузок:', error);
@@ -211,9 +214,11 @@ app.get('/api/download/:fullName/:fileName', (req, res) => {
       return res.status(403).json({ error: 'Доступ запрещен' });
     }
     
-    // Устанавливаем заголовки для скачивания
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(decodedFileName)}"`);
+    // Правильно обрабатываем кириллические символы в заголовках
+    const encodedFileName = encodeURIComponent(decodedFileName);
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodedFileName}`);
     res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Cache-Control', 'no-cache');
     
     // Отправляем файл
     const fileStream = fs.createReadStream(filePath);
