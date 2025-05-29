@@ -113,7 +113,7 @@ function HomePage() {
   };
 
   const handleShare = (upload) => {
-    const shareText = `Работа студента: ${getAuthorsDisplay(upload)}`;
+    const shareText = `Работа: "${getWorkTitle(upload)}" от ${getAuthorsDisplay(upload)}`;
     if (navigator.share) {
       navigator.share({
         title: shareText,
@@ -135,6 +135,11 @@ function HomePage() {
       return `${upload.fullName} и ${upload.secondAuthor}`;
     }
     return upload.fullName;
+  };
+
+  // Получаем название работы или fallback
+  const getWorkTitle = (upload) => {
+    return upload.title || `Работа от ${upload.fullName}`;
   };
 
   const FileRow = ({ fileName, fileType, fullName, upload }) => {
@@ -221,7 +226,7 @@ function HomePage() {
                 <div key={index} className="upload-card">
                   <div className="upload-header">
                     <div className="student-info">
-                      <h3>{getAuthorsDisplay(upload)}</h3>
+                      <h3>{getWorkTitle(upload)}</h3>
                       <div className="upload-meta">
                         <span className="upload-date">
                           📅 {new Date(upload.timestamp).toLocaleString('ru-RU', {
@@ -257,14 +262,10 @@ function HomePage() {
                   </div>
 
                   <div className="upload-details">
-                    {(upload.authors && upload.authors.length > 1) || upload.secondAuthor ? (
-                      <div className="detail-item">
-                        <span className="label">👥 Разработчики:</span>
-                        <span className="value">
-                          {upload.authors ? upload.authors.length : 2} человека
-                        </span>
-                      </div>
-                    ) : null}
+                    <div className="detail-item">
+                      <span className="label">👤 Авторы:</span>
+                      <span className="value">{getAuthorsDisplay(upload)}</span>
+                    </div>
                     {upload.subject && (
                       <div className="detail-item">
                         <span className="label">📚 Предмет:</span>

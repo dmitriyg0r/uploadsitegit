@@ -133,7 +133,12 @@ app.post('/api/upload', upload.fields([
   { name: 'docxFile', maxCount: 1 }
 ]), (req, res) => {
   try {
-    const { fullName, secondAuthor, group, subject, authorsCount } = req.body;
+    const { fullName, secondAuthor, group, subject, authorsCount, title } = req.body;
+    
+    // Проверяем наличие названия работы
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Необходимо указать название работы' });
+    }
     
     // Новая логика: сначала пытаемся получить авторов из новых полей
     let authors = [];
@@ -172,6 +177,7 @@ app.post('/api/upload', upload.fields([
     // Сохраняем информацию о загрузке
     const uploadInfo = {
       timestamp: new Date().toISOString(),
+      title: title.trim(), // Добавляем название работы
       fullName: mainAuthor, // Основной автор для совместимости
       secondAuthor: authors.length > 1 ? authors.slice(1).join(', ') : null, // Для совместимости
       authors: authors, // Новый формат - массив всех авторов

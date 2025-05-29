@@ -179,6 +179,11 @@ const DeployLogsPage = () => {
     return upload.fullName;
   };
 
+  // Получаем название работы или fallback для админ панели
+  const getWorkTitleForAdmin = (upload) => {
+    return upload.title || `Работа от ${upload.fullName}`;
+  };
+
   // Если не аутентифицирован, показываем форму входа
   if (!isAuthenticated) {
     return (
@@ -338,7 +343,7 @@ const DeployLogsPage = () => {
             ) : (
               <div className="uploads-table">
                 <div className="table-header">
-                  <div className="col-student">Студент</div>
+                  <div className="col-student">Название / Студент</div>
                   <div className="col-group">Группа</div>
                   <div className="col-subject">Предмет</div>
                   <div className="col-date">Дата загрузки</div>
@@ -349,9 +354,12 @@ const DeployLogsPage = () => {
                 {uploads.map((upload, index) => (
                   <div key={index} className="table-row">
                     <div className="col-student">
-                      <strong>{getAuthorsDisplayForAdmin(upload)}</strong>
+                      <strong>{getWorkTitleForAdmin(upload)}</strong>
+                      <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
+                        👤 {getAuthorsDisplayForAdmin(upload)}
+                      </div>
                       {(upload.authors && upload.authors.length > 1) || upload.secondAuthor ? (
-                        <div style={{ fontSize: '12px', color: '#8b949e', marginTop: '4px' }}>
+                        <div style={{ fontSize: '11px', color: '#58a6ff', marginTop: '2px' }}>
                           👥 Совместная работа ({upload.authors ? upload.authors.length : 2} автора)
                         </div>
                       ) : null}

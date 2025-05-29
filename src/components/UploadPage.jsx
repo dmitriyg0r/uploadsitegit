@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 function UploadPage() {
   const [formData, setFormData] = useState({
+    title: '',
     authors: [''],
     group: '18ПрД4310',
     subject: ''
@@ -13,6 +14,7 @@ function UploadPage() {
     docxFile: null
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
   const [redirectTimer, setRedirectTimer] = useState(0);
   
@@ -63,6 +65,11 @@ function UploadPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!formData.title.trim()) {
+      setMessage({ text: 'Необходимо указать название работы', type: 'error' });
+      return;
+    }
+    
     const filledAuthors = formData.authors.filter(author => author.trim());
     if (filledAuthors.length === 0) {
       setMessage({ text: 'Необходимо указать хотя бы одного автора работы', type: 'error' });
@@ -76,8 +83,11 @@ function UploadPage() {
 
     setUploading(true);
     setMessage({ text: '', type: '' });
+    setUploadProgress('Подготовка к загрузке...');
 
     const uploadData = new FormData();
+    
+    uploadData.append('title', formData.title.trim());
     
     const cleanAuthors = filledAuthors.map(author => author.trim());
     uploadData.append('fullName', cleanAuthors[0]);
@@ -93,19 +103,32 @@ function UploadPage() {
     
     uploadData.append('group', formData.group);
     uploadData.append('subject', formData.subject);
-    uploadData.append('exeFile', files.exeFile);
-    uploadData.append('docxFile', files.docxFile);
 
     try {
+      setUploadProgress('Загрузка файлов...');
+      
+      uploadData.append('exeFile', files.exeFile);
+      uploadData.append('docxFile', files.docxFile);
+
+      setUploadProgress('Отправка данных на сервер...');
+
       const response = await axios.post(`${API_URL}/api/upload`, uploadData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(`Загрузка: ${percentCompleted}%`);
+          }
+        }
       });
 
+      setUploadProgress('Обработка завершена!');
       setMessage({ text: '✅ Файлы успешно загружены!', type: 'success' });
       
       setFormData({
+        title: '',
         authors: [''],
         group: '18ПрД4310',
         subject: ''
@@ -125,7 +148,7 @@ function UploadPage() {
     } catch (error) {
       const errorMessage = error.response?.data?.error || 'Ошибка при загрузке файлов';
       setMessage({ text: `❌ ${errorMessage}`, type: 'error' });
-    
+      setUploadProgress('');
       setUploading(false);
     }
   };
@@ -146,6 +169,23 @@ function UploadPage() {
             <h2>Загрузить файлы</h2>
             
             <form onSubmit={handleSubmit} className="upload-form">
+              <div className="form-group">
+                <label htmlFor="title">Название работы *</label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
+                  placeholder="Например: Система управления базой данных"
+                  className="title-input"
+                  required
+                />
+                <div className="input-hint">
+                  Укажите краткое и понятное название вашей работы
+                </div>
+              </div>
+
               <div className="form-group">
                 <label>Авторы работы *</label>
                 <div className="authors-container">
@@ -253,9 +293,25 @@ function UploadPage() {
                 className="submit-button"
                 disabled={uploading}
               >
-                {uploading ? '⏳ Загружаем...' : '↗ Загрузить файлы'}
+                {uploading ? (
+                  <div className="loading-content">
+                    <div className="loading-spinner"></div>
+                    <span>{uploadProgress}</span>
+                  </div>
+                ) : (
+                  '↗ Загрузить файлы'
+                )}
               </button>
             </form>
+
+            {uploading && (
+              <div className="upload-progress">
+                <div className="progress-bar">
+                  <div className="progress-fill"></div>
+                </div>
+                <p className="progress-text">{uploadProgress}</p>
+              </div>
+            )}
 
             {message.text && (
               <div className={`message ${message.type === 'success' ? 'success' : 'error'}`}>
@@ -271,6 +327,16 @@ function UploadPage() {
             <h3>ℹ Информация</h3>
             <div className="info-content">
               <div className="info-item">
+                <h4>Требования к заполнению:</h4>
+                <ul>
+                  <li>Название работы: краткое и понятное описание проекта</li>
+                  <li>Минимум один автор (максимум 4 автора)</li>
+                  <li>Группа автоматически устанавливается как 18ПрД4310</li>
+                  <li>Предмет/дисциплина (опционально)</li>
+                </ul>
+              </div>
+
+              <div className="info-item">
                 <h4>Требования к файлам:</h4>
                 <ul>
                   <li>Программа: файл с расширением .exe</li>
@@ -283,8 +349,9 @@ function UploadPage() {
                 <h4>Что происходит после загрузки:</h4>
                 <ul>
                   <li>Файлы сохраняются на сервере</li>
-                  <li>Ваша работа появляется в общем списке</li>
+                  <li>Ваша работа появляется в общем списке с указанным названием</li>
                   <li>Все одногруппники и преподаватели смогут увидеть вашу работу</li>
+                  <li>В карточке работы будут отображены все авторы</li>
                 </ul>
               </div>
 
@@ -296,6 +363,16 @@ function UploadPage() {
                   <li>Папка будет создана по имени основного автора</li>
                   <li>В карточке работы будут отображены все авторы</li>
                   <li>Максимальное количество авторов: 4</li>
+                </ul>
+              </div>
+
+              <div className="info-item">
+                <h4>🚀 Процесс загрузки</h4>
+                <ul>
+                  <li>Подготовка файлов и проверка данных</li>
+                  <li>Загрузка файлов с отображением прогресса</li>
+                  <li>Обработка и сохранение на сервере</li>
+                  <li>Автоматический переход к списку работ</li>
                 </ul>
               </div>
             </div>
