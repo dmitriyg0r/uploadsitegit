@@ -1921,7 +1921,6 @@ body {
 
 .nav-tab.active {
   color: #f0f6fc;
-  border-bottom-color: #f78166;
 }
 
 .nav-tab:disabled {
