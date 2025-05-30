@@ -293,12 +293,12 @@ function HomePage() {
                   </div>
 
                   <div className="files-section">
-                    <h4>Файлы ({Object.keys(upload.files).length})</h4>
+                    <h4>Файлы ({Object.keys(upload.files).filter(key => key !== 'programType').length})</h4>
                     <div className="files-table">
-                      {upload.files.exe && (
+                      {(upload.files.program || upload.files.exe) && (
                         <FileRow 
-                          fileName={upload.files.exe}
-                          fileType="exe"
+                          fileName={upload.files.program || upload.files.exe}
+                          fileType={upload.files.programType === '.py' ? 'py' : 'exe'}
                           fullName={upload.fullName}
                           upload={upload}
                         />
@@ -317,7 +317,7 @@ function HomePage() {
                   <div className="upload-footer">
                     <div className="upload-stats">
                       <span className="stat-item">
-                        📊 Всего файлов: {Object.keys(upload.files).length}
+                        📊 Всего файлов: {Object.keys(upload.files).filter(key => key !== 'programType').length}
                       </span>
                       <span className="stat-item">
                         🕒 Загружено: {new Date(upload.timestamp).toLocaleDateString('ru-RU')}

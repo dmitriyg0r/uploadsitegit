@@ -2423,3 +2423,10 @@ body {
   color: inherit;
   transition: color 0.15s ease;
 }
+
+/* Подсказка типа файла */
+.file-type-hint {
+  color: #7d8590;
+  font-size: 12px;
+  font-weight: normal;
+}

@@ -216,12 +216,14 @@ function WorkDetailsPage() {
                 </span>
               </div>
               <div className="files-count">
-                {Object.keys(workData.files).length} файлов
+                {Object.keys(workData.files).filter(key => key !== 'programType').length} файлов
               </div>
             </div>
 
             <div className="files-list">
-              {Object.entries(workData.files).map(([type, fileName]) => {
+              {Object.entries(workData.files)
+                .filter(([type]) => type !== 'programType') // Исключаем служебное поле
+                .map(([type, fileName]) => {
                 const fileInfo = filesInfo[type] || {};
                 const isDownloading = downloadingFiles.has(fileName);
                 
@@ -261,8 +263,16 @@ function WorkDetailsPage() {
               
               <h4>📦 Состав проекта:</h4>
               <ul>
-                {workData.files.exe && (
-                  <li><strong>Исполняемый файл:</strong> {workData.files.exe}</li>
+                {(workData.files.program || workData.files.exe) && (
+                  <li>
+                    <strong>Программный файл:</strong> {workData.files.program || workData.files.exe}
+                    {workData.files.programType === '.py' && (
+                      <span className="file-type-hint"> (Python скрипт)</span>
+                    )}
+                    {workData.files.programType === '.exe' && (
+                      <span className="file-type-hint"> (Исполняемый файл)</span>
+                    )}
+                  </li>
                 )}
                 {workData.files.docx && (
                   <li><strong>Документация:</strong> {workData.files.docx}</li>

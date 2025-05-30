@@ -10,7 +10,7 @@ function UploadPage() {
     subject: ''
   });
   const [files, setFiles] = useState({
-    exeFile: null,
+    programFile: null,
     docxFile: null
   });
   const [uploading, setUploading] = useState(false);
@@ -76,8 +76,8 @@ function UploadPage() {
       return;
     }
     
-    if (!files.exeFile || !files.docxFile) {
-      setMessage({ text: 'Необходимо загрузить и exe файл и документацию', type: 'error' });
+    if (!files.programFile || !files.docxFile) {
+      setMessage({ text: 'Необходимо загрузить и программный файл и документацию', type: 'error' });
       return;
     }
 
@@ -107,7 +107,7 @@ function UploadPage() {
     try {
       setUploadProgress('Загрузка файлов...');
       
-      uploadData.append('exeFile', files.exeFile);
+      uploadData.append('programFile', files.programFile);
       uploadData.append('docxFile', files.docxFile);
 
       setUploadProgress('Отправка данных на сервер...');
@@ -134,11 +134,11 @@ function UploadPage() {
         subject: ''
       });
       setFiles({
-        exeFile: null,
+        programFile: null,
         docxFile: null
       });
       
-      document.getElementById('exeFile').value = '';
+      document.getElementById('programFile').value = '';
       document.getElementById('docxFile').value = '';
       
       setTimeout(() => {
@@ -252,18 +252,18 @@ function UploadPage() {
 
               <div className="file-uploads">
                 <div className="form-group">
-                  <label htmlFor="exeFile">Исполняемый файл (.exe) *</label>
+                  <label htmlFor="programFile">Программный файл *</label>
                   <div className="file-input-container">
                     <input
                       type="file"
-                      id="exeFile"
-                      name="exeFile"
+                      id="programFile"
+                      name="programFile"
                       onChange={handleFileChange}
-                      accept=".exe"
+                      accept=".exe,.py"
                       required
                     />
                     <div className="file-hint">
-                      <p>📁 Загрузите исполняемый файл вашей программы</p>
+                      <p>📁 Загрузите программный файл вашей программы</p>
                       <p>Максимальный размер: 100MB</p>
                     </div>
                   </div>
@@ -338,7 +338,7 @@ function UploadPage() {
               <div className="info-item">
                 <h4>Требования к файлам:</h4>
                 <ul>
-                  <li>Программа: файл с расширением .exe</li>
+                  <li>Программа: файл с расширением .exe или .py</li>
                   <li>Документация: файл с расширением .docx</li>
                   <li>Максимальный размер каждого файла: 100MB</li>
                 </ul>

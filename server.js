@@ -99,9 +99,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// Фильтр файлов - разрешаем только .exe и .docx
+// Фильтр файлов - разрешаем только .exe, .py и .docx
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['.exe', '.docx'];
+  const allowedTypes = ['.exe', '.py', '.docx'];
   const fileExtension = path.extname(file.originalname).toLowerCase();
   
   if (allowedTypes.includes(fileExtension)) {
@@ -129,7 +129,7 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/api/upload', upload.fields([
-  { name: 'exeFile', maxCount: 1 },
+  { name: 'programFile', maxCount: 1 },
   { name: 'docxFile', maxCount: 1 }
 ]), (req, res) => {
   try {
@@ -167,12 +167,16 @@ app.post('/api/upload', upload.fields([
       return res.status(400).json({ error: 'Необходимо указать хотя бы одного автора работы' });
     }
     
-    if (!req.files || !req.files.exeFile || !req.files.docxFile) {
-      return res.status(400).json({ error: 'Необходимо загрузить и exe файл и документацию' });
+    if (!req.files || !req.files.programFile || !req.files.docxFile) {
+      return res.status(400).json({ error: 'Необходимо загрузить программный файл (.exe или .py) и документацию' });
     }
     
     // Основной автор - первый в списке
     const mainAuthor = authors[0];
+    
+    // Определяем тип программного файла
+    const programFile = req.files.programFile[0];
+    const programExtension = path.extname(programFile.filename).toLowerCase();
     
     // Сохраняем информацию о загрузке
     const uploadInfo = {
@@ -184,8 +188,11 @@ app.post('/api/upload', upload.fields([
       group: group || '',
       subject: subject || '',
       files: {
-        exe: req.files.exeFile[0].filename,
-        docx: req.files.docxFile[0].filename
+        program: programFile.filename,
+        programType: programExtension, // .exe или .py
+        docx: req.files.docxFile[0].filename,
+        // Для обратной совместимости оставляем поле exe
+        exe: programFile.filename
       }
     };
     
