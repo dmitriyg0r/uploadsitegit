@@ -231,7 +231,14 @@ function WorkDetailsPage() {
                   <div key={type} className="file-item">
                     <div className="file-icon-name">
                       <span className="file-icon">{getFileIcon(fileName)}</span>
-                      <span className="file-name">{fileName}</span>
+                      <span 
+                        className="file-name"
+                        onClick={() => downloadFile(fileName, type)}
+                        style={{ cursor: 'pointer' }}
+                        title="Нажмите, чтобы скачать файл"
+                      >
+                        {fileName}
+                      </span>
                     </div>
                     <div className="file-actions">
                       <span className="file-size">{formatFileSize(fileInfo.size)}</span>

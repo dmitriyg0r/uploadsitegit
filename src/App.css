@@ -393,10 +393,12 @@ body {
   word-break: break-all;
   font-weight: 400;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .file-name:hover {
   text-decoration: underline;
+  color: #79c0ff;
 }
 
 .file-size-col {
@@ -2028,15 +2030,19 @@ body {
 }
 
 .file-name {
-  color: #58a6ff;
+  display: block;
   font-family: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 14px;
+  font-size: 13px;
+  color: #58a6ff;
   word-break: break-all;
+  font-weight: 400;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .file-name:hover {
   text-decoration: underline;
+  color: #79c0ff;
 }
 
 .file-actions {

@@ -160,7 +160,14 @@ function HomePage() {
         <div className="file-info">
           <span className="file-icon">{getFileIcon(fileName)}</span>
           <div className="file-details">
-            <span className="file-name" title={fileName}>{fileName}</span>
+            <span 
+              className="file-name" 
+              title={fileName}
+              onClick={() => downloadFile(fullName, fileName, fileType)}
+              style={{ cursor: 'pointer' }}
+            >
+              {fileName}
+            </span>
           </div>
         </div>
         <div className="file-size-col">
