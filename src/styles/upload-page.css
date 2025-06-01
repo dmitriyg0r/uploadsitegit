@@ -1,0 +1,475 @@
+/* Стили для страницы загрузки */
+.upload-section {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.upload-form-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+
+.upload-form-container h2 {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.25;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Группы форм */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.form-group input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Поле для загрузки файлов */
+.file-uploads {
+  margin-top: 8px;
+}
+
+.file-input-container {
+  border: 2px dashed var(--border-primary);
+  border-radius: 6px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.form-group input[type="file"]:hover {
+  border-color: var(--accent-primary);
+}
+
+.file-hint {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.file-hint p {
+  margin: 4px 0;
+  line-height: 1.4;
+}
+
+.file-hint p:first-child {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Кнопка отправки */
+.submit-button {
+  background: var(--accent-primary);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  position: relative;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: var(--accent-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+}
+
+.submit-button:disabled {
+  background: #30363d;
+  color: #7d8590;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Авторы */
+.authors-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.author-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.author-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.author-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.author-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.remove-author-btn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.remove-author-btn:hover {
+  background: #f85149;
+}
+
+.add-author-btn {
+  background: var(--success);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.add-author-btn:hover {
+  background: #2ea043;
+}
+
+.add-author-btn:disabled {
+  background: #30363d;
+  color: #7d8590;
+  cursor: not-allowed;
+}
+
+.authors-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+}
+
+/* Специальные поля */
+.group-input-readonly {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-secondary) !important;
+  cursor: not-allowed;
+  border-color: var(--border-secondary);
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.group-input-readonly:focus {
+  border-color: var(--border-secondary) !important;
+  box-shadow: none !important;
+}
+
+.title-input {
+  padding: 12px 16px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.title-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+.title-input::placeholder {
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Состояния загрузки */
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+}
+
+.upload-info {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.upload-info h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-item h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.info-item ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.info-item li {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.info-item li::marker {
+  color: var(--accent-primary);
+}
+
+/* Уведомления Toast */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: auto;
+  animation: slideInRight 0.3s ease-out;
+  position: relative;
+  min-width: 300px;
+}
+
+.toast.success {
+  border-color: var(--success);
+  background: rgba(35, 134, 54, 0.1);
+}
+
+.toast.error {
+  border-color: var(--danger);
+  background: rgba(248, 81, 73, 0.1);
+}
+
+.toast.warning {
+  border-color: var(--warning);
+  background: rgba(191, 135, 0, 0.1);
+}
+
+.toast.info {
+  border-color: var(--accent-primary);
+  background: rgba(88, 166, 255, 0.1);
+}
+
+.toast-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.toast-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.toast-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.toast-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.toast-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: slideInRight 0.3s ease-out reverse;
+}
+
+/* Анимации для Toast */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast {
+  will-change: transform, opacity;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .upload-section {
+    padding: 0 16px;
+  }
+
+  .file-uploads {
+    margin-top: 16px;
+  }
+
+  .upload-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .toast-container {
+    left: 16px;
+    right: 16px;
+    top: 16px;
+    max-width: none;
+  }
+
+  .toast {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+/* Дополнительные анимации */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.file-type-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  text-align: center;
+} 

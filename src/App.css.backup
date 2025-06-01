@@ -13,4 +13,4 @@
 @import './styles/home-page.css';
 @import './styles/upload-page.css';
 @import './styles/work-details.css';
-@import './styles/admin.css'; 
+@import './styles/admin.css';
