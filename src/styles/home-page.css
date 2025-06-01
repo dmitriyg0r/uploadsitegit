@@ -146,7 +146,6 @@
   padding: 16px;
   transition: all 0.15s ease;
   position: relative;
-  animation: fadeIn 0.3s ease-in-out;
 }
 
 .upload-card:hover {
@@ -498,6 +497,10 @@
 
   .work-title {
     font-size: 14px;
+  }
+
+  .file-name {
+    position: relative;
   }
 
   .file-name::after {
