@@ -270,9 +270,9 @@ function WorkDetailsPage() {
               
               <h4>📦 Состав проекта:</h4>
               <ul>
-                {(workData.files.program || workData.files.exe) && (
+                {workData.files.program && (
                   <li>
-                    <strong>Программный файл:</strong> {workData.files.program || workData.files.exe}
+                    <strong>Программный файл:</strong> {workData.files.program}
                     {workData.files.programType === '.py' && (
                       <span className="file-type-hint"> (Python скрипт)</span>
                     )}

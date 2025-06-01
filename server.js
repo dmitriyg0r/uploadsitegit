@@ -190,9 +190,7 @@ app.post('/api/upload', upload.fields([
       files: {
         program: programFile.filename,
         programType: programExtension, // .exe или .py
-        docx: req.files.docxFile[0].filename,
-        // Для обратной совместимости оставляем поле exe
-        exe: programFile.filename
+        docx: req.files.docxFile[0].filename
       }
     };
     

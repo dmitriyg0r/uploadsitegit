@@ -302,9 +302,9 @@ function HomePage() {
                   <div className="files-section">
                     <h4>Файлы ({Object.keys(upload.files).filter(key => key !== 'programType').length})</h4>
                     <div className="files-table">
-                      {(upload.files.program || upload.files.exe) && (
+                      {upload.files.program && (
                         <FileRow 
-                          fileName={upload.files.program || upload.files.exe}
+                          fileName={upload.files.program}
                           fileType={upload.files.programType === '.py' ? 'py' : 'exe'}
                           fullName={upload.fullName}
                           upload={upload}
