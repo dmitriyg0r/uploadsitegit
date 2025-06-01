@@ -337,15 +337,18 @@
   border-radius: 6px;
   overflow: hidden;
   background: var(--bg-primary);
+  width: 100%;
 }
 
 .file-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--border-primary);
   transition: background-color 0.15s ease;
+  min-height: 36px;
 }
 
 .file-row:last-child {
@@ -356,24 +359,18 @@
   background: var(--bg-secondary);
 }
 
-.file-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-}
-
 .file-icon {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
   opacity: 0.7;
+  grid-column: 1;
 }
 
 .file-details {
   min-width: 0;
-  flex: 1;
+  grid-column: 2;
+  overflow: hidden;
 }
 
 .file-name {
@@ -384,20 +381,23 @@
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+  display: block;
+  max-width: 100%;
+  line-height: 1.2;
 }
 
 .file-name:hover {
   color: var(--accent-primary);
 }
 
-.file-size-col {
-  text-align: right;
-}
-
 .file-size {
   font-size: 11px;
   color: var(--text-secondary);
   font-family: monospace;
+  white-space: nowrap;
+  grid-column: 3;
+  text-align: right;
+  min-width: 50px;
 }
 
 .file-download-btn {
@@ -412,9 +412,13 @@
   transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
   position: relative;
   z-index: 1;
+  grid-column: 4;
+  flex-shrink: 0;
 }
 
 .file-download-btn:hover:not(:disabled) {
@@ -428,6 +432,19 @@
   color: var(--text-secondary);
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Улучшенные responsive стили для файлов удалены */
+
+/* Дополнительные эффекты */
+.action-btn:focus-visible,
+.file-download-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.uploads-grid {
+  animation: fadeInUp 0.4s ease-out;
 }
 
 /* Responsive */
@@ -468,30 +485,36 @@
     justify-content: space-between;
   }
 
-  .file-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .file-info {
-    justify-content: space-between;
-  }
-
-  .file-size-col {
-    text-align: left;
-  }
-
-  .file-download-btn {
-    align-self: flex-start;
-  }
-
   .authors-list {
     justify-content: flex-start;
   }
 
   .author-tag {
     flex-shrink: 0;
+  }
+
+  /* Файлы - responsive стили */
+  .file-row {
+    grid-template-columns: auto 1fr auto;
+    gap: 6px;
+  }
+
+  .file-size {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  .file-download-btn {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .file-details {
+    grid-column: 2;
+    grid-row: 1;
   }
 }
 
@@ -504,33 +527,25 @@
     font-size: 14px;
   }
 
+  .file-row {
+    grid-template-columns: auto 1fr auto;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
   .file-name {
-    position: relative;
+    font-size: 11px;
+    max-width: 150px;
   }
 
-  .file-name::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to right, transparent 0%, var(--bg-secondary) 100%);
-    pointer-events: none;
+  .file-size {
+    font-size: 9px;
   }
 
-  .file-name:hover::after {
-    display: none;
+  .file-download-btn {
+    min-width: 24px;
+    height: 20px;
+    padding: 2px 4px;
+    font-size: 10px;
   }
-}
-
-/* Дополнительные эффекты */
-.action-btn:focus-visible,
-.file-download-btn:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-}
-
-.uploads-grid {
-  animation: fadeInUp 0.4s ease-out;
 } 

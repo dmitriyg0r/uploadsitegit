@@ -186,36 +186,30 @@ function HomePage() {
 
     return (
       <div className="file-row">
-        <div className="file-info">
-          <span className="file-icon">{getFileIcon(fileName)}</span>
-          <div className="file-details">
-            <span 
-              className="file-name" 
-              title={fileName}
-              onClick={() => downloadFile(fullName, fileName, fileType)}
-              style={{ cursor: 'pointer' }}
-            >
-              {fileName}
-            </span>
-          </div>
-        </div>
-        <div className="file-size-col">
-          <span className="file-size">{fileSize}</span>
-        </div>
-        <div className="file-actions-col">
-          <button 
-            className="file-download-btn"
+        <span className="file-icon">{getFileIcon(fileName)}</span>
+        <div className="file-details">
+          <span 
+            className="file-name" 
+            title={fileName}
             onClick={() => downloadFile(fullName, fileName, fileType)}
-            disabled={isDownloading}
-            title="Скачать файл"
+            style={{ cursor: 'pointer' }}
           >
-            {isDownloading ? (
-              <span className="spinner-small"></span>
-            ) : (
-              '↓'
-            )}
-          </button>
+            {fileName}
+          </span>
         </div>
+        <span className="file-size">{fileSize}</span>
+        <button 
+          className="file-download-btn"
+          onClick={() => downloadFile(fullName, fileName, fileType)}
+          disabled={isDownloading}
+          title="Скачать файл"
+        >
+          {isDownloading ? (
+            <span className="spinner-small"></span>
+          ) : (
+            '↓'
+          )}
+        </button>
       </div>
     );
   };
