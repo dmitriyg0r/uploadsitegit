@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from './ThemeToggle';
+import SearchAndFilter from './SearchAndFilter';
+import { ToastContainer } from './ToastNotification';
 
 function HomePage() {
   const [uploads, setUploads] = useState([]);
+  const [filteredUploads, setFilteredUploads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [downloadingFiles, setDownloadingFiles] = useState(new Set());
+  const { theme } = useTheme();
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -20,11 +26,21 @@ function HomePage() {
       const response = await axios.get(`${API_URL}/api/uploads`);
       const uploadData = Array.isArray(response.data) ? response.data : [];
       setUploads(uploadData);
+      setFilteredUploads(uploadData);
       setError('');
+      
+      if (window.showToast) {
+        window.showToast('Данные успешно загружены', 'success', 2000);
+      }
     } catch (error) {
       console.error('Ошибка получения списка загрузок:', error);
       setError('Ошибка загрузки данных');
       setUploads([]);
+      setFilteredUploads([]);
+      
+      if (window.showToast) {
+        window.showToast('Ошибка загрузки данных', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,9 +64,15 @@ function HomePage() {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
+      
+      if (window.showToast) {
+        window.showToast(`Файл "${fileName}" скачан`, 'success', 3000);
+      }
     } catch (error) {
       console.error('Ошибка скачивания файла:', error);
-      alert('Ошибка при скачивании файла');
+      if (window.showToast) {
+        window.showToast('Ошибка при скачивании файла', 'error');
+      }
     } finally {
       setDownloadingFiles(prev => {
         const newSet = new Set(prev);
@@ -116,6 +138,7 @@ function HomePage() {
     const authors = getAuthorsDisplay(upload);
     const authorsText = authors.join(', ');
     const shareText = `Работа: "${getWorkTitle(upload)}" от ${authorsText}`;
+    
     if (navigator.share) {
       navigator.share({
         title: shareText,
@@ -123,8 +146,10 @@ function HomePage() {
         url: window.location.href,
       });
     } else {
-      navigator.clipboard.writeText(shareText);
-      alert('Информация скопирована в буфер обмена');
+      navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
+      if (window.showToast) {
+        window.showToast('Информация скопирована в буфер обмена', 'success', 3000);
+      }
     }
   };
 
@@ -144,8 +169,12 @@ function HomePage() {
     return upload.title || `Работа от ${upload.fullName}`;
   };
 
+  const handleFilter = (filtered) => {
+    setFilteredUploads(filtered);
+  };
+
   const FileRow = ({ fileName, fileType, fullName, upload }) => {
-    const [fileSize, setFileSize] = useState('Загрузка...');
+    const [fileSize, setFileSize] = useState('...');
     const fileKey = `${fullName}-${fileName}`;
     const isDownloading = downloadingFiles.has(fileKey);
 
@@ -175,15 +204,13 @@ function HomePage() {
         </div>
         <div className="file-actions-col">
           <button 
-            className="action-btn download-btn"
+            className="file-download-btn"
             onClick={() => downloadFile(fullName, fileName, fileType)}
             disabled={isDownloading}
             title="Скачать файл"
           >
             {isDownloading ? (
-              <>
-                <span className="spinner-small"></span>
-              </>
+              <span className="spinner-small"></span>
             ) : (
               '↓'
             )}
@@ -193,145 +220,190 @@ function HomePage() {
     );
   };
 
+  const WorkCard = ({ upload, index }) => {
+    const authors = getAuthorsDisplay(upload);
+    const workTitle = getWorkTitle(upload);
+    const filesCount = Object.keys(upload.files).filter(key => key !== 'programType').length;
+
+    return (
+      <article className="upload-card fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+        <header className="upload-header">
+          <div className="student-info">
+            <Link 
+              to={`/work/${encodeURIComponent(upload.fullName)}`} 
+              className="work-title-link"
+            >
+              <h3 className="work-title">{workTitle}</h3>
+            </Link>
+            <div className="upload-meta">
+              <time className="upload-date" dateTime={upload.timestamp}>
+                📅 {new Date(upload.timestamp).toLocaleDateString('ru-RU', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </time>
+              {upload.group && (
+                <span className="group-badge">
+                  👥 {upload.group}
+                </span>
+              )}
+              {upload.subject && (
+                <span className="subject-badge">
+                  📚 {upload.subject}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="upload-actions">
+            <Link
+              to={`/work/${encodeURIComponent(upload.fullName)}`}
+              className="action-btn details-btn"
+              title="Подробнее"
+            >
+              👁️
+            </Link>
+            <button
+              className="action-btn share-btn"
+              onClick={() => handleShare(upload)}
+              title="Поделиться"
+            >
+              📤
+            </button>
+          </div>
+        </header>
+
+        <div className="upload-content">
+          <div className="authors-section">
+            <span className="section-label">👤 Авторы:</span>
+            <div className="authors-list">
+              {authors.map((author, index) => (
+                <span key={index} className="author-tag">{author}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="files-section">
+            <div className="files-header">
+              <span className="section-label">📁 Файлы ({filesCount})</span>
+            </div>
+            <div className="files-container">
+              {upload.files.program && (
+                <FileRow 
+                  fileName={upload.files.program}
+                  fileType={upload.files.programType === '.py' ? 'py' : 'exe'}
+                  fullName={upload.fullName}
+                  upload={upload}
+                />
+              )}
+              {upload.files.docx && (
+                <FileRow 
+                  fileName={upload.files.docx}
+                  fileType="docx"
+                  fullName={upload.fullName}
+                  upload={upload}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  };
+
   return (
     <div className="home-page">
+      <ToastContainer />
+      
       <header className="page-header">
-        <h1>Проекты студентов группы 18ПрД4310</h1>
-        <p>Просмотр загруженных работ</p>
-        <Link to="/upload" className="upload-link">
-          ↗ Загрузить работу
-        </Link>
+        <div className="header-content">
+          <div className="header-main">
+            <h1>🎓 Проекты студентов</h1>
+            <p>Группа 18ПрД4310 • Просмотр загруженных работ</p>
+          </div>
+          <div className="header-actions">
+            <ThemeToggle />
+            <Link to="/upload" className="btn-primary upload-btn">
+              📤 Загрузить работу
+            </Link>
+          </div>
+        </div>
       </header>
 
       <main className="main-content">
-        <div className="uploads-section">
+        <div className="content-container">
           <div className="section-header">
-            <h2>Загруженные работы ({uploads.length})</h2>
-            <button onClick={fetchUploads} className="refresh-button">
-              ↻ Обновить
+            <div className="section-info">
+              <h2>📚 Загруженные работы</h2>
+              <span className="works-count">{filteredUploads.length} из {uploads.length}</span>
+            </div>
+            <button onClick={fetchUploads} className="btn-secondary refresh-btn" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner-small"></span>
+                  Загрузка...
+                </>
+              ) : (
+                <>
+                  🔄 Обновить
+                </>
+              )}
             </button>
           </div>
+
+          {uploads.length > 0 && (
+            <SearchAndFilter 
+              uploads={uploads} 
+              onFilter={handleFilter}
+            />
+          )}
           
           {loading ? (
-            <div className="loading">
-              <div className="spinner"></div>
-              <p>Загружаем данные...</p>
+            <div className="loading-state">
+              <div className="loading-content">
+                <div className="spinner"></div>
+                <h3>Загружаем работы...</h3>
+                <p>Пожалуйста, подождите</p>
+              </div>
             </div>
           ) : error ? (
-            <div className="error-message">
-              <p>✗ {error}</p>
-              <button onClick={fetchUploads} className="retry-button">
-                Попробовать снова
-              </button>
+            <div className="error-state">
+              <div className="error-content">
+                <div className="error-icon">❌</div>
+                <h3>Упс! Что-то пошло не так</h3>
+                <p>{error}</p>
+                <button onClick={fetchUploads} className="btn-primary retry-btn">
+                  🔄 Попробовать снова
+                </button>
+              </div>
             </div>
           ) : uploads.length === 0 ? (
-            <div className="no-uploads">
-              <h3>Пока что никто не загрузил файлы</h3>
-              <p>Будьте первым! <Link to="/upload">Загрузите свою работу</Link></p>
+            <div className="empty-state">
+              <div className="empty-content">
+                <div className="empty-icon">📭</div>
+                <h3>Пока что работ нет</h3>
+                <p>Будьте первым! Загрузите свою работу и поделитесь с группой</p>
+                <Link to="/upload" className="btn-primary">
+                  📤 Загрузить первую работу
+                </Link>
+              </div>
+            </div>
+          ) : filteredUploads.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-content">
+                <div className="empty-icon">🔍</div>
+                <h3>Ничего не найдено</h3>
+                <p>Попробуйте изменить критерии поиска или сбросить фильтры</p>
+              </div>
             </div>
           ) : (
             <div className="uploads-grid">
-              {uploads.map((upload, index) => (
-                <div key={index} className="upload-card">
-                  <div className="upload-header">
-                    <div className="student-info">
-                      <Link 
-                        to={`/work/${encodeURIComponent(upload.fullName)}`} 
-                        className="work-title-link"
-                      >
-                        <h3>{getWorkTitle(upload)}</h3>
-                      </Link>
-                      <div className="upload-meta">
-                        <span className="upload-date">
-                          📅 {new Date(upload.timestamp).toLocaleString('ru-RU', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                        {upload.group && (
-                          <span className="group-badge">
-                            👥 {upload.group}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="upload-actions">
-                      <Link
-                        to={`/work/${encodeURIComponent(upload.fullName)}`}
-                        className="action-btn details-btn"
-                        title="Подробнее"
-                      >
-                        👁️
-                      </Link>
-                      <button
-                        className="action-btn share-btn"
-                        onClick={() => handleShare(upload)}
-                        title="Поделиться"
-                      >
-                        ↗
-                      </button>
-                      <button
-                        className="action-btn more-btn"
-                        title="Дополнительные действия"
-                      >
-                        ⋯
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="upload-details">
-                    <div className="detail-item">
-                      <span className="label">👤 Авторы:</span>
-                      <div className="value authors-list">
-                        {getAuthorsDisplay(upload).map((author, index) => (
-                          <div key={index} className="author-name">{author}</div>
-                        ))}
-                      </div>
-                    </div>
-                    {upload.subject && (
-                      <div className="detail-item">
-                        <span className="label">📚 Предмет:</span>
-                        <span className="value">{upload.subject}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="files-section">
-                    <h4>Файлы ({Object.keys(upload.files).filter(key => key !== 'programType').length})</h4>
-                    <div className="files-table">
-                      {upload.files.program && (
-                        <FileRow 
-                          fileName={upload.files.program}
-                          fileType={upload.files.programType === '.py' ? 'py' : 'exe'}
-                          fullName={upload.fullName}
-                          upload={upload}
-                        />
-                      )}
-                      {upload.files.docx && (
-                        <FileRow 
-                          fileName={upload.files.docx}
-                          fileType="docx"
-                          fullName={upload.fullName}
-                          upload={upload}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="upload-footer">
-                    <div className="upload-stats">
-                      <span className="stat-item">
-                        📊 Всего файлов: {Object.keys(upload.files).filter(key => key !== 'programType').length}
-                      </span>
-                      <span className="stat-item">
-                        🕒 Загружено: {new Date(upload.timestamp).toLocaleDateString('ru-RU')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              {filteredUploads.map((upload, index) => (
+                <WorkCard 
+                  key={`${upload.fullName}-${upload.timestamp}`} 
+                  upload={upload} 
+                  index={index}
+                />
               ))}
             </div>
           )}
