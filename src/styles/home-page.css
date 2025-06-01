@@ -165,6 +165,7 @@
   border-radius: 6px;
   opacity: 0;
   transition: opacity 0.15s ease;
+  pointer-events: none;
 }
 
 .upload-card:hover::before {
@@ -262,6 +263,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .action-btn:hover {
@@ -410,6 +413,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  position: relative;
+  z-index: 1;
 }
 
 .file-download-btn:hover:not(:disabled) {
